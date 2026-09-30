@@ -1,0 +1,17 @@
+name = "repair-lab-api"
+main = "src/index.ts"
+compatibility_date = "2024-09-25"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "repair-lab-db"
+database_id = "PLACEHOLDER_D1_ID"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "repair-lab-photos"
+
+[vars]
+# Placeholder for the future home-lab sourcing agent token.
+# Set a real value via `wrangler secret put AGENT_SERVICE_TOKEN`.
+AGENT_SERVICE_TOKEN = "PLACEHOLDER_AGENT_TOKEN"
