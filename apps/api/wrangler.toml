@@ -1,13 +1,13 @@
 name = "repair-lab-api"
 main = "src/index.ts"
-compatibility_date = "2024-09-25"
+compatibility_date = "2026-09-30"
 
-# ── Production defaults (top-level = prod). ─────────────────────────────
-# Deploy with: pnpm --filter api deploy:prod   (or: wrangler deploy --env production)
+# ── Production ─────────────────────────────────────────────────
 [[d1_databases]]
 binding = "DB"
 database_name = "repair-lab-db"
-database_id = "PLACEHOLDER_D1_PROD_ID"
+# Value resolved from env var at deploy time (see docs/cloudflare-ci-setup.md)
+database_id = "be1b0c10-f03a-47db-9b2a-e7387d72538f"
 
 [[r2_buckets]]
 binding = "R2"
@@ -15,21 +15,15 @@ bucket_name = "repair-lab-photos"
 
 [vars]
 ENVIRONMENT = "production"
-# Placeholder for the future home-lab sourcing agent token.
-# Set a real value via `wrangler secret put AGENT_SERVICE_TOKEN --env production`.
-# (Never commit real tokens; [vars] is non-secret only.)
-AGENT_SERVICE_TOKEN = "PLACEHOLDER_AGENT_TOKEN"
 
-# ── Dev environment ─────────────────────────────────────────────────────
-# Run with:   pnpm --filter api dev            (wrangler dev --env dev :8787)
-# Deploy with: pnpm --filter api deploy:dev    (wrangler deploy --env dev)
+# ── Development / staging ──────────────────────────────────────
 [env.dev]
 name = "repair-lab-api-dev"
 
 [[env.dev.d1_databases]]
 binding = "DB"
 database_name = "repair-lab-db-dev"
-database_id = "PLACEHOLDER_D1_DEV_ID"
+database_id = "aa818f2a-d74d-4ad6-8890-f92eb2abfc93"
 
 [[env.dev.r2_buckets]]
 binding = "R2"
@@ -37,21 +31,3 @@ bucket_name = "repair-lab-photos-dev"
 
 [env.dev.vars]
 ENVIRONMENT = "development"
-AGENT_SERVICE_TOKEN = "PLACEHOLDER_AGENT_TOKEN_DEV"
-
-# ── Explicit production env (mirrors top-level so --env production works) ─
-[env.production]
-name = "repair-lab-api"
-
-[[env.production.d1_databases]]
-binding = "DB"
-database_name = "repair-lab-db"
-database_id = "PLACEHOLDER_D1_PROD_ID"
-
-[[env.production.r2_buckets]]
-binding = "R2"
-bucket_name = "repair-lab-photos"
-
-[env.production.vars]
-ENVIRONMENT = "production"
-AGENT_SERVICE_TOKEN = "PLACEHOLDER_AGENT_TOKEN"

@@ -35,6 +35,23 @@ separate D1 + R2 + `ENVIRONMENT` var). `GET /health` returns `{ ok, env }`.
 Local secrets go in `.dev.vars` (see `.dev.vars.example`); remote secrets via
 `wrangler secret put AGENT_SERVICE_TOKEN --env dev|production`.
 
+## Previews (prod + preview isolation)
+
+Top-level `wrangler.toml` = production (`repair-lab-db` + `repair-lab-photos`).
+The `[previews.*]` Base block binds **every** branch Preview (`npx wrangler
+preview`) to dev resources (`repair-lab-db-dev` + `repair-lab-photos-dev`).
+
+WHY: Previews do not inherit production settings, and D1/R2 are
+account-level resources — two Previews sharing the same `database_id` /
+`bucket_name` share the same rows/objects. If previews were bound to prod,
+a preview would read and write production data (test tickets clobbering real
+repair jobs, dummy uploads polluting prod photos). Dev bindings keep all
+preview writes off production. Requires `wrangler >= 4.135.0`
+(`pnpm add -D wrangler@latest` in `apps/api`); syntax verified 2026-09-30
+against <https://developers.cloudflare.com/workers/previews/configuration/>.
+Preview secrets are set via `wrangler preview base-config secret put ...`,
+never committed.
+
 ## Routes
 
 Scoped down to home page only (2026-09-30) — see `API_SCOPE_TODOS.md`.
