@@ -2,16 +2,56 @@ name = "repair-lab-api"
 main = "src/index.ts"
 compatibility_date = "2024-09-25"
 
+# ── Production defaults (top-level = prod). ─────────────────────────────
+# Deploy with: pnpm --filter api deploy:prod   (or: wrangler deploy --env production)
 [[d1_databases]]
 binding = "DB"
 database_name = "repair-lab-db"
-database_id = "PLACEHOLDER_D1_ID"
+database_id = "PLACEHOLDER_D1_PROD_ID"
 
 [[r2_buckets]]
 binding = "R2"
 bucket_name = "repair-lab-photos"
 
 [vars]
+ENVIRONMENT = "production"
 # Placeholder for the future home-lab sourcing agent token.
-# Set a real value via `wrangler secret put AGENT_SERVICE_TOKEN`.
+# Set a real value via `wrangler secret put AGENT_SERVICE_TOKEN --env production`.
+# (Never commit real tokens; [vars] is non-secret only.)
+AGENT_SERVICE_TOKEN = "PLACEHOLDER_AGENT_TOKEN"
+
+# ── Dev environment ─────────────────────────────────────────────────────
+# Run with:   pnpm --filter api dev            (wrangler dev --env dev :8787)
+# Deploy with: pnpm --filter api deploy:dev    (wrangler deploy --env dev)
+[env.dev]
+name = "repair-lab-api-dev"
+
+[[env.dev.d1_databases]]
+binding = "DB"
+database_name = "repair-lab-db-dev"
+database_id = "PLACEHOLDER_D1_DEV_ID"
+
+[[env.dev.r2_buckets]]
+binding = "R2"
+bucket_name = "repair-lab-photos-dev"
+
+[env.dev.vars]
+ENVIRONMENT = "development"
+AGENT_SERVICE_TOKEN = "PLACEHOLDER_AGENT_TOKEN_DEV"
+
+# ── Explicit production env (mirrors top-level so --env production works) ─
+[env.production]
+name = "repair-lab-api"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "repair-lab-db"
+database_id = "PLACEHOLDER_D1_PROD_ID"
+
+[[env.production.r2_buckets]]
+binding = "R2"
+bucket_name = "repair-lab-photos"
+
+[env.production.vars]
+ENVIRONMENT = "production"
 AGENT_SERVICE_TOKEN = "PLACEHOLDER_AGENT_TOKEN"

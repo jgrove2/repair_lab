@@ -1,0 +1,9 @@
+# Local secrets for `wrangler dev`. NOT committed (.gitignore).
+# Copy to `.dev.vars` for local runs:
+#   cp .dev.vars.example .dev.vars
+#
+# Which env does `wrangler dev` use?
+#   pnpm --filter api dev         -> --env dev, reads this file for AGENT_SERVICE_TOKEN
+#   (Remote secrets are separate per env — see scripts/cloudflare-setup.sh:
+#    `wrangler secret put AGENT_SERVICE_TOKEN --env dev|--env production`)
+AGENT_SERVICE_TOKEN="dev-only-placeholder-token"

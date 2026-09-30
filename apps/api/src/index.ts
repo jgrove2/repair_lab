@@ -12,7 +12,9 @@ import { photoRoute } from "./photo.js";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-app.get("/health", (c) => c.json({ ok: true }));
+app.get("/health", (c) =>
+  c.json({ ok: true, env: c.env.ENVIRONMENT ?? "unknown" }),
+);
 
 app.route("/items", itemsRoute);
 app.route("/tickets", ticketsRoute);

@@ -5,11 +5,21 @@ Static React app (Vite + TypeScript), deployed to Cloudflare Pages. Dummy data o
 ## Run
 
 ```bash
-pnpm --filter web dev   # Vite on :5173, proxies /api → 127.0.0.1:8787
+pnpm --filter web dev          # Vite on :5173, proxies /api → 127.0.0.1:8787 (dev Worker)
+pnpm --filter web build:dev    # staging build → talks to DEV Worker URL (.env.staging)
+pnpm --filter web build:prod   # production build → talks to PROD Worker URL (.env.production)
+pnpm --filter web deploy:dev   # build:dev + Pages deploy to repair-lab-web-dev
+pnpm --filter web deploy:prod  # build:prod + Pages deploy to repair-lab-web
 ```
 
-In `src/lib/api.ts`, `MOCK=true` renders placeholder data without a backend.
-Set `MOCK=false` to fetch from the live Worker (`/api/*`).
+Env files (placeholders committed, no secrets):
+
+- `.env.development` — `VITE_API_BASE=/api` (Vite proxy), `VITE_MOCK=true`
+- `.env.staging` — absolute dev Worker URL, used by `build:dev` / dev Pages
+- `.env.production` — absolute prod Worker URL, used by `build` / prod Pages
+
+`VITE_APP_ENV` renders as a badge in the nav so dev/staging/prod are visually
+distinct. Set `VITE_MOCK=false` to fetch from the live Worker.
 
 ## Routes
 

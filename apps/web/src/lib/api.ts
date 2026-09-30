@@ -1,6 +1,9 @@
 // Tiny typed fetch wrapper for the Worker API.
-// Set MOCK=true to render placeholder data without a running backend.
-// Otherwise requests go to /api/* (proxied to wrangler dev :8787 locally).
+//
+// Env (baked at `vite build` time, see .env.development/.env.staging/.env.production):
+//   VITE_APP_ENV  development | staging | production  (UI badge)
+//   VITE_API_BASE /api (local proxy) or https://<worker-host> (Pages)
+//   VITE_MOCK     true = placeholder data, no backend needed
 import type {
   Candidate,
   Component,
@@ -9,9 +12,13 @@ import type {
   Ticket,
 } from "@repair-lab/shared";
 
-export const MOCK = true;
+export const APP_ENV: string =
+  import.meta.env.VITE_APP_ENV ?? "development";
 
-const API_BASE = "/api";
+export const MOCK: boolean =
+  (import.meta.env.VITE_MOCK ?? "true") !== "false";
+
+const API_BASE: string = import.meta.env.VITE_API_BASE ?? "/api";
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`);
@@ -32,7 +39,7 @@ export const api = {
     get<{ items: Item[]; components: Component[] }>(`/search?q=${encodeURIComponent(q)}`),
 };
 
-// --- Dummy fallback data (renders when MOCK=true or backend is down) ---
+// --- Dummy fallback data (renders when VITE_MOCK=true or backend is down) ---
 export const mockItems: Item[] = [
   {
     id: "item-ps2-parts",

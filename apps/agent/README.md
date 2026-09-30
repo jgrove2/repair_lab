@@ -15,8 +15,16 @@ Future home-lab process for sourcing. **Not implemented.** No real eBay / MCP lo
 ## Run
 
 ```bash
-pnpm --filter agent dev   # prints "agent not implemented" and exits
+# Dev — talks to local wrangler dev (:8787, --env dev)
+APP_ENV=development REPAIR_LAB_API_URL=http://127.0.0.1:8787 pnpm --filter agent dev
+
+# Prod — talks to the deployed prod Worker (fill real host + token)
+APP_ENV=production REPAIR_LAB_API_URL=https://repair-lab-api.PLACEHOLDER_ACCOUNT.workers.dev \
+  AGENT_SERVICE_TOKEN=<prod-secret> pnpm --filter agent dev
 ```
+
+See `.env.example`. One token per API env
+(`wrangler secret put AGENT_SERVICE_TOKEN --env dev|--env production`).
 
 ## TODO
 
