@@ -12,10 +12,6 @@
     "migrate:dev:local": "wrangler d1 migrations apply repair-lab-db-dev --env dev --local",
     "migrate:dev:remote": "wrangler d1 migrations apply repair-lab-db-dev --env dev --remote",
     "migrate:prod:remote": "wrangler d1 migrations apply repair-lab-db --env production --remote",
-    "seed": "tsx scripts/seed.ts",
-    "seed:dev:local": "wrangler d1 execute repair-lab-db-dev --env dev --local --file ./scripts/seed.sql",
-    "seed:dev:remote": "wrangler d1 execute repair-lab-db-dev --env dev --remote --file ./scripts/seed.sql",
-    "seed:prod:remote": "wrangler d1 execute repair-lab-db --env production --remote --file ./scripts/seed.sql",
     "build": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit"
