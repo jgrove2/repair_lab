@@ -1,4 +1,4 @@
-name = "repair-lab-web"
+name = "repair-lab"
 compatibility_date = "2025-09-30"
 
 # Static-asset Worker (Vite `dist/` output).
