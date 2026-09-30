@@ -52,5 +52,6 @@ confirm vision, then check off.
   - Test: `tsc --noEmit` in `apps/web`, live fetch against dev Worker
 
 ## Notes
-- Backend endpoints still exist and were NOT removed — UI is just not calling them.
+- Backend endpoints were also scoped down to `GET /health` only on 2026-09-30 —
+  see `API_SCOPE_TODOS.md`. UI stories that need APIs list their pair there.
 - Shared types in `packages/shared` (`Item, Ticket, Component, Preference, Candidate`) left intact.
