@@ -37,12 +37,6 @@ Local secrets go in `.dev.vars` (see `.dev.vars.example`); remote secrets via
 
 ## Routes
 
-- `GET /health` → `{ ok: true }`
-- `/items` — CRUD
-- `/tickets` — CRUD + nested `/:id/notes`, `/:id/photos`, `/:id/components`
-- `/components`, `/locations`, `/preferences`, `/candidates` — CRUD
-- `GET /search?q=` — FTS5 `items_fts` + `components_fts`, bm25, LIMIT 20
-- `POST /photos/presign` — **stub**, returns fake `{ key, uploadUrl }`
+Scoped down to home page only (2026-09-30) — see `API_SCOPE_TODOS.md`.
 
-Auth (`src/middleware/auth.ts`) is a stub checking `x-agent-token`.
-TODO: real Cloudflare Access JWT validation via `CF-Authorization` + JWKS.
+- `GET /health` → `{ ok: true, env }` (only live route; verifies backend env)
