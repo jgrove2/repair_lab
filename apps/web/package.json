@@ -10,8 +10,8 @@
     "build:prod": "tsc --noEmit && vite build --mode production",
     "preview": "vite preview",
     "preview:staging": "vite preview --mode staging",
-    "deploy:dev": "vite build --mode staging && wrangler pages deploy dist --project-name repair-lab-web-dev",
-    "deploy:prod": "vite build --mode production && wrangler pages deploy dist --project-name repair-lab-web",
+    "deploy:dev": "tsc --noEmit && vite build --mode staging && wrangler pages deploy dist --project-name repair-lab-web-dev",
+    "deploy:prod": "tsc --noEmit && vite build --mode production && wrangler pages deploy dist --project-name repair-lab-web",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit"
   },
