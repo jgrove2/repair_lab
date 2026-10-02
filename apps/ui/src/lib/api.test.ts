@@ -1,3 +1,4 @@
+import { renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@logto/react", () => ({
@@ -56,8 +57,8 @@ describe("useApi", () => {
   it("injects the Logto access token into requests", async () => {
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 200 }));
 
-    const api = useApi();
-    await api.fetch("/items");
+    const { result } = renderHook(() => useApi());
+    await result.current.fetch("/items");
 
     const [, init] = fetchMock.mock.calls[0];
     expect((init.headers as Headers).get("Authorization")).toBe("Bearer token-abc");
