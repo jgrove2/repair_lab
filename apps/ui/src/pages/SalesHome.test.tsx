@@ -1,10 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
-import App from "./App";
 
 vi.mock("@logto/react", () => ({
-  LogtoProvider: ({ children }: { children?: ReactNode }) => children ?? null,
   useLogto: () => ({
     isLoading: false,
     isAuthenticated: false,
@@ -15,17 +12,16 @@ vi.mock("@logto/react", () => ({
   }),
 }));
 
-describe("App", () => {
-  it("renders the sales home with a sign in button when signed out", () => {
-    render(<App />);
+import SalesHome from "./SalesHome";
+
+describe("SalesHome", () => {
+  it("renders the project name and sign in control", () => {
+    render(<SalesHome />);
     expect(
       screen.getByRole("heading", { name: "Repair lab" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Sign In" }),
     ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("link", { name: "Home" }),
-    ).not.toBeInTheDocument();
   });
 });

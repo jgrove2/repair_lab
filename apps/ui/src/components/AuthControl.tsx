@@ -21,7 +21,7 @@ export default function AuthControl() {
     void signOut(SIGN_OUT_URI).catch(() => setSigningOut(false));
   }, [signOut]);
 
-  if (isLoading) {
+  if (isLoading && !isAuthenticated) {
     return <button className="topnav-signin" disabled>Checking session…</button>;
   }
 
