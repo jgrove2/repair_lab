@@ -14,26 +14,3 @@ export const APP_ENV: string =
   import.meta.env.VITE_APP_ENV ?? "development";
 
 export const API_BASE = "/api"
-
-export async function getHealth(): Promise<{ ok: boolean; env: string }> {
-  const res = await fetch(`${API_BASE}/health`)
-  if (!res.ok) throw new Error(`GET /health failed: ${res.status}`)
-  return res.json()
-}
-
-export type AuthedHealth = {
-  ok: boolean
-  env: string
-  sub: string
-  clientId: string | null
-  scopes: string[]
-  audience: string[]
-}
-
-export async function getAuthedHealth(accessToken: string): Promise<AuthedHealth> {
-  const res = await fetch(`${API_BASE}/health/auth`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  })
-  if (!res.ok) throw new Error(`GET /health/auth failed: ${res.status}`)
-  return res.json()
-}

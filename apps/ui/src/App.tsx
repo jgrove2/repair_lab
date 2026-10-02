@@ -10,12 +10,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <LogtoProvider config={logtoConfig}>
-        <nav>
+        <nav className="topnav">
           <Link to="/">Home</Link>
           <span
             title={`VITE_APP_ENV=${APP_ENV}`}
             style={{
-              marginLeft: "auto",
               fontSize: 12,
               padding: "2px 8px",
               borderRadius: 999,
@@ -24,6 +23,7 @@ export default function App() {
           >
             {APP_ENV}
           </span>
+          <div className="topnav-spacer" aria-hidden="true" />
           <AuthControl />
         </nav>
         <main>
