@@ -3,6 +3,7 @@ import { LogtoProvider } from "@logto/react";
 import SalesHome from "./pages/SalesHome";
 import Home from "./pages/Home";
 import Inventory from "./pages/Inventory";
+import Tasks from "./pages/Tasks";
 import Callback from "./pages/Callback";
 import {
   RedirectIfAuthenticated,
@@ -27,6 +28,7 @@ export default function App() {
           <Route element={<RequireAuth />}>
             <Route path="/app" element={<Home />} />
             <Route path="/app/inventory" element={<Inventory />} />
+            <Route path="/app/tasks" element={<Tasks />} />
           </Route>
         </Routes>
       </LogtoProvider>

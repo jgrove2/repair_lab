@@ -6,6 +6,7 @@ import { useDismissOnOutsideClick } from "../hooks/useDismissOnOutsideClick";
 const NAV_LINKS = [
   { to: "/app", label: "Home" },
   { to: "/app/inventory", label: "Inventory" },
+  { to: "/app/tasks", label: "Tasks" },
 ];
 
 // Responsive top navigation. On narrow screens the links collapse behind a
