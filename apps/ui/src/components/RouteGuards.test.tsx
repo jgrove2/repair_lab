@@ -13,7 +13,6 @@ vi.mock("@logto/react", () => ({
 }));
 
 vi.mock("../lib/api", () => ({
-  APP_ENV: "development",
   useApi: () => ({ fetch: mocks.fetch }),
 }));
 

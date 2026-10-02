@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import type { ReactNode } from "react";
-import { Link, Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useLogto } from "@logto/react";
-import AuthControl from "./AuthControl";
-import { APP_ENV, useApi } from "../lib/api";
+import TopNav from "./TopNav";
+import { useApi } from "../lib/api";
 import { SIGN_OUT_URI } from "../lib/logto";
 
 function Loading() {
@@ -46,23 +46,7 @@ export function RequireAuth() {
 
   return (
     <>
-      <nav className="topnav">
-        <Link to="/app">Home</Link>
-        <Link to="/app/inventory">Inventory</Link>
-        <span
-          title={`VITE_APP_ENV=${APP_ENV}`}
-          style={{
-            fontSize: 12,
-            padding: "2px 8px",
-            borderRadius: 999,
-            background: APP_ENV === "production" ? "#fee2e2" : "#fef9c3",
-          }}
-        >
-          {APP_ENV}
-        </span>
-        <div className="topnav-spacer" aria-hidden="true" />
-        <AuthControl />
-      </nav>
+      <TopNav />
       <main>
         <Outlet />
       </main>
