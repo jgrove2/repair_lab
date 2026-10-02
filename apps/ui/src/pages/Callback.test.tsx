@@ -65,6 +65,6 @@ describe("Callback", () => {
     );
 
     callback?.();
-    expect(mocks.navigate).toHaveBeenCalledWith("/", { replace: true });
+    expect(mocks.navigate).toHaveBeenCalledWith("/app", { replace: true });
   });
 });

@@ -4,7 +4,7 @@ import { useHandleSignInCallback } from "@logto/react";
 export default function Callback() {
   const navigate = useNavigate();
   const { isLoading, error } = useHandleSignInCallback(() => {
-    navigate("/", { replace: true });
+    navigate("/app", { replace: true });
   });
 
   if (isLoading) {
