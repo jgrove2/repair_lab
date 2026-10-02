@@ -4,6 +4,7 @@ import type {
   PaginatedResponse,
 } from "@repair-lab/shared";
 import { useApi } from "../lib/api";
+import AddComponentModal from "../components/AddComponentModal";
 
 const PAGE_SIZE = 10;
 
@@ -25,6 +26,8 @@ export default function Inventory() {
   const [sort, setSort] = useState<SortKey>("name");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -54,7 +57,7 @@ export default function Inventory() {
     return () => {
       cancelled = true;
     };
-  }, [apiFetch, page, sort]);
+  }, [apiFetch, page, sort, reload]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -85,12 +88,21 @@ export default function Inventory() {
         <button
           type="button"
           className="inventory-add"
-          disabled
-          title="Adding components is not available yet"
+          onClick={() => setAddOpen(true)}
         >
           Add
         </button>
       </div>
+
+      {addOpen && (
+        <AddComponentModal
+          onClose={() => setAddOpen(false)}
+          onSaved={() => {
+            setPage(1);
+            setReload((current) => current + 1);
+          }}
+        />
+      )}
 
       {error ? (
         <p className="inventory-status">Could not load inventory.</p>

@@ -48,9 +48,20 @@ describe("Inventory", () => {
     expect(await screen.findByText("No components yet.")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Add" }),
-    ).toBeDisabled();
+    ).toBeEnabled();
     expect(
       screen.getByRole("combobox", { name: "Sort by" }),
+    ).toBeInTheDocument();
+  });
+
+  it("opens the add component dialog", async () => {
+    render(<Inventory />);
+
+    await screen.findByText("No components yet.");
+    fireEvent.click(screen.getByRole("button", { name: "Add" }));
+
+    expect(
+      await screen.findByRole("dialog", { name: "Add component" }),
     ).toBeInTheDocument();
   });
 

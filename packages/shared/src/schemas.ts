@@ -152,6 +152,18 @@ export const componentCreateSchema = z.object({
 
 export const componentUpdateSchema = componentCreateSchema.partial();
 
+// Payload for the inventory "add component" flow. Resolves (and optionally
+// creates) a location by name, then increments the matching component or
+// inserts a new one. `name` identifies the component; `quantity` is the amount
+// to add.
+export const componentUpsertSchema = z.object({
+  name: z.string().min(1),
+  quantity: z.number().int().min(1).optional(),
+  location_id: z.string().min(1).optional(),
+  location_name: z.string().min(1).optional(),
+  location_type: locationTypeSchema.optional(),
+});
+
 export const ticketComponentSchema = z.object({
   id: z.string(),
   ticket_id: z.string(),
@@ -219,4 +231,5 @@ export type TicketInput = z.infer<typeof ticketCreateSchema>;
 export type PreferenceInput = z.infer<typeof preferenceCreateSchema>;
 export type LocationInput = z.infer<typeof locationCreateSchema>;
 export type ComponentInput = z.infer<typeof componentCreateSchema>;
+export type ComponentUpsertInput = z.infer<typeof componentUpsertSchema>;
 export type CandidateInput = z.infer<typeof candidateCreateSchema>;

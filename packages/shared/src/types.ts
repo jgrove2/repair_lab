@@ -120,6 +120,13 @@ export interface ComponentListItem extends Component {
   location_name: string | null;
 }
 
+// Result of the inventory "add component" flow. `created` distinguishes a new
+// row from a quantity merge into an existing component.
+export interface ComponentUpsertResult {
+  component: ComponentListItem;
+  created: boolean;
+}
+
 // Generic envelope for server-side paginated list endpoints.
 export interface PaginatedResponse<T> {
   data: T[];
