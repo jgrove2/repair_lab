@@ -24,6 +24,12 @@ export const logtoConfig: LogtoConfig = {
   resources: API_RESOURCE ? [API_RESOURCE] : [],
 };
 
+// True only when the required SPA credentials are present. The sign-in control
+// disables itself (with a hint) when this is false.
+export const logtoConfigured = Boolean(
+  VITE_LOGTO_ENDPOINT && VITE_LOGTO_APP_ID,
+);
+
 // Absolute URIs matching the redirect URIs registered in the console above.
 export const CALLBACK_URI = `${window.location.origin}/callback`;
 export const SIGN_OUT_URI = `${window.location.origin}/`;
