@@ -6,6 +6,9 @@
 //
 // Env (baked at `vite build` time):
 //   VITE_APP_ENV  development | staging | production  (UI badge)
+//
+// Authenticated calls take the JWT from `getAccessToken()` (see `useLogto()`),
+// which is a token for VITE_LOGTO_API_RESOURCE.
 
 export const APP_ENV: string =
   import.meta.env.VITE_APP_ENV ?? "development";
@@ -27,10 +30,6 @@ export type AuthedHealth = {
   audience: string[]
 }
 
-/**
- * Hit the authenticated health endpoint. Pass the JWT from
- * `getAccessToken(LOGTO_API_RESOURCE)` (see `useLogto()`).
- */
 export async function getAuthedHealth(accessToken: string): Promise<AuthedHealth> {
   const res = await fetch(`${API_BASE}/health/auth`, {
     headers: { Authorization: `Bearer ${accessToken}` },

@@ -86,11 +86,15 @@ jobs:
       VITE_APP_ENV: ${{ vars.VITE_APP_ENV }}
       VITE_LOGTO_ENDPOINT: ${{ vars.VITE_LOGTO_ENDPOINT }}
       VITE_LOGTO_APP_ID: ${{ vars.VITE_LOGTO_APP_ID }}
+      VITE_LOGTO_API_RESOURCE: ${{ vars.VITE_LOGTO_API_RESOURCE }}
 
     steps:
       - name: Check UI environment
         run: |
           : "${VITE_APP_ENV:?Set VITE_APP_ENV on the GitHub Environment}"
+          : "${VITE_LOGTO_ENDPOINT:?Set VITE_LOGTO_ENDPOINT on the GitHub Environment}"
+          : "${VITE_LOGTO_APP_ID:?Set VITE_LOGTO_APP_ID on the GitHub Environment}"
+          : "${VITE_LOGTO_API_RESOURCE:?Set VITE_LOGTO_API_RESOURCE on the GitHub Environment}"
 
       - uses: actions/checkout@v4
 
@@ -189,11 +193,15 @@ jobs:
       VITE_APP_ENV: ${{ vars.VITE_APP_ENV }}
       VITE_LOGTO_ENDPOINT: ${{ vars.VITE_LOGTO_ENDPOINT }}
       VITE_LOGTO_APP_ID: ${{ vars.VITE_LOGTO_APP_ID }}
+      VITE_LOGTO_API_RESOURCE: ${{ vars.VITE_LOGTO_API_RESOURCE }}
 
     steps:
       - name: Check UI environment
         run: |
           : "${VITE_APP_ENV:?Set VITE_APP_ENV on the GitHub Environment}"
+          : "${VITE_LOGTO_ENDPOINT:?Set VITE_LOGTO_ENDPOINT on the GitHub Environment}"
+          : "${VITE_LOGTO_APP_ID:?Set VITE_LOGTO_APP_ID on the GitHub Environment}"
+          : "${VITE_LOGTO_API_RESOURCE:?Set VITE_LOGTO_API_RESOURCE on the GitHub Environment}"
 
       - uses: actions/checkout@v4
 

@@ -1,51 +1,91 @@
-import { useState } from "react";
-import { useLogto } from "@logto/react";
-import { getAuthedHealth, type AuthedHealth } from "./lib/api";
-import { LOGTO_API_RESOURCE, isApiResourceConfigured } from "./lib/logto";
+import { useCallback, useEffect, useState } from "react"
+import { useLogto } from "@logto/react"
+import { getAuthedHealth, getHealth, type AuthedHealth } from "./lib/api"
+import { API_RESOURCE } from "./lib/logto"
 
-export function Home() {
-  const { isAuthenticated, getAccessToken } = useLogto();
+export function Dashboard() {
+  const [backend, setBackend] = useState<string>("checking...")
+
+  useEffect(() => {
+    getHealth()
+      .then((h) => setBackend(h.env))
+      .catch(() => setBackend("unreachable"))
+  }, [])
+
+  return (
+    <div>
+      <h1>Repair Lab (dummy)</h1>
+      <div className="card">
+        <strong>Summary (placeholder)</strong>
+        <p>3 dummy items · 2 open tickets · 2 sourcing preferences.</p>
+        <p>
+          Backend: <span className="badge">/api {backend}</span>
+        </p>
+      </div>
+      <SignedInCheck />
+    </div>
+  );
+}
+
+// Renders the result of an authenticated API call so we can see that login and
+// API token verification agree. Session state comes from the SDK; the only
+// local state here is the in-flight request.
+function SignedInCheck() {
+  const { getAccessToken, isAuthenticated, isLoading } = useLogto();
   const [result, setResult] = useState<AuthedHealth | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
 
-  const checkAuth = async () => {
+  const check = useCallback(async () => {
     setChecking(true);
     setError(null);
-    setResult(null);
     try {
-      const token = await getAccessToken(LOGTO_API_RESOURCE);
+      // The resource argument is required: without it Logto returns the OIDC
+      // token, which the API rejects on audience.
+      const token = await getAccessToken(API_RESOURCE);
       if (!token) {
-        throw new Error("No access token returned (missing API resource or consent).");
+        throw new Error("No access token returned for the API resource.");
       }
       setResult(await getAuthedHealth(token));
     } catch (err) {
+      setResult(null);
       setError(err instanceof Error ? err.message : "Auth check failed");
     } finally {
       setChecking(false);
     }
-  };
+  }, [getAccessToken]);
+
+  useEffect(() => {
+    if (isLoading || !isAuthenticated || !API_RESOURCE) {
+      setResult(null);
+      setError(null);
+      return;
+    }
+    void check();
+  }, [isLoading, isAuthenticated, check]);
+
+  if (isLoading || !isAuthenticated) {
+    return null;
+  }
 
   return (
-    <main className="home-center">
-      <h1>Repair Lab</h1>
-      {isAuthenticated ? (
-        <div>
-          <button
-            onClick={() => void checkAuth()}
-            disabled={checking || !isApiResourceConfigured}
-            title={
-              isApiResourceConfigured
-                ? "Call GET /health/auth with your access token"
-                : "Missing VITE_LOGTO_API_RESOURCE"
-            }
-          >
-            {checking ? "Checking…" : "Check API auth"}
-          </button>
-          {result && <p>API auth OK (sub: {result.sub}, env: {result.env})</p>}
-          {error && <p>API auth failed: {error}</p>}
-        </div>
-      ) : null}
-    </main>
+    <div className="card">
+      <strong>API auth</strong>
+      {!API_RESOURCE && (
+        <p>Missing VITE_LOGTO_API_RESOURCE, so no API token can be issued.</p>
+      )}
+      {checking && <p>Checking…</p>}
+      {result && (
+        <p className="badge">
+          OK · sub {result.sub} · env {result.env}
+        </p>
+      )}
+      {error && (
+        <p>
+          {error}{" "}
+          <button onClick={() => void check()}>Retry</button>
+        </p>
+      )}
+    </div>
   );
 }

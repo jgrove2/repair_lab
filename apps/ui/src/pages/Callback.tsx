@@ -8,20 +8,14 @@ export default function Callback() {
   });
 
   if (isLoading) {
-    return (
-      <main className="home-center">
-        <p>Redirecting…</p>
-      </main>
-    );
+    return <p>Redirecting…</p>;
   }
 
   if (error) {
     return (
-      <main className="home-center">
-        <p>
-          Sign-in failed. <Link to="/">Back to home</Link>
-        </p>
-      </main>
+      <p>
+        Sign-in failed: {error.message} <Link to="/">Back to home</Link>
+      </p>
     );
   }
 

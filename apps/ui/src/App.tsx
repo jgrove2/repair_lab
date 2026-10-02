@@ -1,19 +1,37 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import { LogtoProvider } from "@logto/react";
-import { Home } from "./pages";
+import { Dashboard } from "./pages";
 import Callback from "./pages/Callback";
-import TopNav from "./components/TopNav";
+import AuthControl from "./components/AuthControl";
+import { APP_ENV } from "./lib/api";
 import { logtoConfig } from "./lib/logto";
 
 export default function App() {
   return (
     <BrowserRouter>
       <LogtoProvider config={logtoConfig}>
-        <TopNav />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/callback" element={<Callback />} />
-        </Routes>
+        <nav>
+          <Link to="/">Home</Link>
+          <span
+            title={`VITE_APP_ENV=${APP_ENV}`}
+            style={{
+              marginLeft: "auto",
+              fontSize: 12,
+              padding: "2px 8px",
+              borderRadius: 999,
+              background: APP_ENV === "production" ? "#fee2e2" : "#fef9c3",
+            }}
+          >
+            {APP_ENV}
+          </span>
+          <AuthControl />
+        </nav>
+        <main>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/callback" element={<Callback />} />
+          </Routes>
+        </main>
       </LogtoProvider>
     </BrowserRouter>
   );
