@@ -13,6 +13,10 @@ bucket_name = "repair-lab-photos"
 
 [vars]
 ENVIRONMENT = "production"
+# Logto tenant + API resource identifier (must match the API resource
+# registered in Logto Console and VITE_LOGTO_API_RESOURCE in the UI).
+LOGTO_ENDPOINT = "https://auth.jgrove.dev"
+LOGTO_API_RESOURCE = "https://repair-lab-api-dev.justinwgrove.workers.dev"
 
 # ── Development / staging ──────────────────────────────────────
 [env.dev]
@@ -28,3 +32,5 @@ bucket_name = "repair-lab-photos-dev"
 
 [env.dev.vars]
 ENVIRONMENT = "development"
+LOGTO_ENDPOINT = "https://auth.jgrove.dev"
+LOGTO_API_RESOURCE = "https://repair-lab-api-dev.justinwgrove.workers.dev"
