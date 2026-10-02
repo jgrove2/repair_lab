@@ -1,4 +1,6 @@
+import { useCallback } from "react";
 import { useLogto } from "@logto/react";
+import { API_RESOURCE } from "./logto";
 
 // Tiny typed fetch wrapper for the Worker API.
 //
@@ -30,15 +32,19 @@ export async function apiFetch(
   return res;
 }
 
-// Authenticated fetch bound to the current Logto session. The access token is
-// a JWT for VITE_LOGTO_API_RESOURCE; requests fail with 401 if that resource
-// is missing from the Logto `resources` config.
+// Authenticated fetch bound to the current Logto session. getAccessToken() is
+// called with API_RESOURCE so Logto issues a JWT scoped to our API (aud =
+// VITE_LOGTO_API_RESOURCE), matching LOGTO_API_RESOURCE on the API Worker. A
+// no-arg call returns Logto's opaque userinfo token, which the API's jwtVerify
+// rejects with 401 ("Invalid Compact JWS").
 export function useApi() {
   const { getAccessToken } = useLogto();
-  return {
-    fetch: async (path: string, init?: RequestInit) => {
-      const token = await getAccessToken();
+  const fetch = useCallback(
+    async (path: string, init?: RequestInit) => {
+      const token = await getAccessToken(API_RESOURCE || undefined);
       return apiFetch(path, init, token);
     },
-  };
+    [getAccessToken],
+  );
+  return { fetch };
 }
