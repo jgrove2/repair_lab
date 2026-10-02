@@ -1,16 +1,19 @@
 // Tiny typed fetch wrapper for the Worker API.
 //
-// Env (baked at `vite build` time, see .env.development/.env.staging/.env.production):
-//   VITE_APP_ENV  development | staging | production  (UI badge)
-//   VITE_API_BASE /api (local proxy) or https://<worker-host> (Pages)
-//   VITE_MOCK     true = placeholder data, no backend needed
+// Same-origin via the UI Worker service binding (see src/worker.ts):
+//   browser -> /api/* -> API Worker (prefix stripped).
+// Local dev uses the Vite proxy in vite.config.ts (same /api shape).
 //
-// NOTE: Scoped down to home page only (2026-09-30). All endpoint wrappers
-// and mock data were removed — see UI_SCOPE_TODOS.md for restore stories.
-// Only env flags are kept because Dashboard uses them for the env badge.
+// Env (baked at `vite build` time):
+//   VITE_APP_ENV  development | staging | production  (UI badge)
 
 export const APP_ENV: string =
   import.meta.env.VITE_APP_ENV ?? "development";
 
-export const MOCK: boolean =
-  (import.meta.env.VITE_MOCK ?? "true") !== "false";
+export const API_BASE = "/api"
+
+export async function getHealth(): Promise<{ ok: boolean; env: string }> {
+  const res = await fetch(`${API_BASE}/health`)
+  if (!res.ok) throw new Error(`GET /health failed: ${res.status}`)
+  return res.json()
+}
