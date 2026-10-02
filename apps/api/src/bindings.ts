@@ -4,4 +4,6 @@ export type Bindings = {
   R2: R2Bucket;
   ENVIRONMENT?: string;
   AGENT_SERVICE_TOKEN?: string;
+  LOGTO_ENDPOINT?: string;
+  LOGTO_API_RESOURCE?: string;
 };

@@ -14,18 +14,23 @@
     "migrate:prod:remote": "wrangler d1 migrations apply repair-lab-db --remote",
     "build": "tsc --noEmit",
     "lint": "tsc --noEmit",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@repair-lab/shared": "workspace:*",
     "hono": "^4.6.0",
+    "jose": "^6.2.12",
     "nanoid": "^5.0.7",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261001.1",
     "@types/node": "^26.6.3",
+    "@vitest/coverage-v8": "^2.1.9",
     "typescript": "^5.6.3",
+    "vitest": "^2.1.9",
     "wrangler": "^4.0.0"
   }
 }

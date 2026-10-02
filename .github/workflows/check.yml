@@ -32,6 +32,9 @@ jobs:
       - name: Build
         run: pnpm turbo run build
 
+      - name: Test with coverage
+        run: pnpm turbo run test:coverage
+
       - name: Validate Wrangler config
         env:
           CLOUDFLARE_API_TOKEN: dummy

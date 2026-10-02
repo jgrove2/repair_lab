@@ -6,22 +6,170 @@
 body {
   margin: 0;
 }
-nav {
+nav.topnav {
   display: flex;
+  align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background: #1f2937;
+  background: #6d28d9;
+  color: #ffffff;
+  min-height: 56px;
+  box-sizing: border-box;
 }
-nav a {
-  color: #f9fafb;
+nav.topnav a {
+  color: #ffffff;
   text-decoration: none;
 }
-nav a:hover {
+nav.topnav a:hover {
   text-decoration: underline;
+}
+.topnav-spacer {
+  flex: 1;
+}
+.topnav-signin {
+  background: #ffffff;
+  color: #6d28d9;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 20px;
+  font-weight: 600;
+}
+.topnav-signin:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.topnav-profile {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.topnav-profile-trigger {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  line-height: 0;
+}
+.topnav-profile-trigger:hover .topnav-avatar {
+  border-color: #ddd6fe;
+}
+.topnav-profile-trigger:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+.topnav-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  background: #ffffff;
+  color: #6d28d9;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
+}
+.topnav-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.topnav-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 10;
+  min-width: 260px;
+  max-width: min(340px, calc(100vw - 32px));
+  padding: 8px;
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 18%);
+}
+.topnav-menu-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px 10px;
+}
+.topnav-menu-name {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.topnav-menu-sub {
+  font-size: 13px;
+  color: #6b7280;
+  overflow-wrap: anywhere;
+}
+.topnav-menu-details {
+  margin: 0;
+  padding: 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.topnav-menu-row {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 8px;
+  font-size: 13px;
+}
+.topnav-menu-row dt {
+  color: #6b7280;
+}
+.topnav-menu-row dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.topnav-menu-sep {
+  height: 1px;
+  margin: 10px 0;
+  background: #e5e7eb;
+}
+.topnav-menu-action {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  text-align: left;
+  font: inherit;
+  color: #b91c1c;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+}
+.topnav-menu-action:hover {
+  background: #fef2f2;
+}
+.topnav-menu-action:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
 }
 main {
   padding: 16px;
   max-width: 900px;
+}
+/* Home fills the viewport (minus the topnav) so its title can sit dead center. */
+main:has(.home) {
+  max-width: none;
+  padding: 0;
+}
+.home {
+  min-height: calc(100vh - 56px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.home-title {
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 4rem);
+  letter-spacing: -0.02em;
 }
 .card {
   background: white;

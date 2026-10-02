@@ -1,25 +1,30 @@
-import { useEffect, useState } from "react"
-import { getHealth } from "./lib/api"
+import { useEffect } from "react";
+import { useLogto } from "@logto/react";
+import { useApi } from "./lib/api";
+import { SIGN_OUT_URI } from "./lib/logto";
 
 export function Dashboard() {
-  const [backend, setBackend] = useState<string>("checking...")
+  const { isAuthenticated, signOut } = useLogto();
+  const { fetch: apiFetch } = useApi();
 
   useEffect(() => {
-    getHealth()
-      .then((h) => setBackend(h.env))
-      .catch(() => setBackend("unreachable"))
-  }, [])
+    if (!isAuthenticated) {
+      return;
+    }
+    let cancelled = false;
+    apiFetch("/me").catch(() => {
+      if (!cancelled) {
+        void signOut(SIGN_OUT_URI);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, apiFetch, signOut]);
 
   return (
-    <div>
-      <h1>Repair Lab (dummy)</h1>
-      <div className="card">
-        <strong>Summary (placeholder)</strong>
-        <p>3 dummy items · 2 open tickets · 2 sourcing preferences.</p>
-        <p>
-          Backend: <span className="badge">/api {backend}</span>
-        </p>
-      </div>
+    <div className="home">
+      <h1 className="home-title">Repair lab</h1>
     </div>
   );
 }
