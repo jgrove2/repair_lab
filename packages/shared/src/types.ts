@@ -113,3 +113,17 @@ export interface Candidate {
   status: CandidateStatus;
   discovered_at: string;
 }
+
+// A component joined with its location's display name, as returned by the
+// inventory list endpoint.
+export interface ComponentListItem extends Component {
+  location_name: string | null;
+}
+
+// Generic envelope for server-side paginated list endpoints.
+export interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  pageSize: number;
+  total: number;
+}
