@@ -1,0 +1,220 @@
+name: Deploy components
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        required: true
+        type: string
+      deploy_api:
+        required: true
+        type: boolean
+      deploy_ui:
+        required: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  api-dev:
+    if: ${{ inputs.target == 'dev' && inputs.deploy_api }}
+    runs-on: ubuntu-latest
+    environment: development
+    concurrency:
+      group: repair-lab-dev
+      cancel-in-progress: false
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Apply dev D1 migrations
+        working-directory: apps/api
+        run: >-
+          pnpm exec wrangler d1 migrations apply repair-lab-db-dev
+          --env dev --remote
+
+      - name: Deploy dev API Worker
+        working-directory: apps/api
+        run: pnpm exec wrangler deploy --env dev
+
+      - name: Smoke test dev API
+        if: ${{ vars.API_URL != '' }}
+        env:
+          API_URL: ${{ vars.API_URL }}
+        run: |
+          body="$(curl -fsS --retry 5 --retry-delay 3 \
+            "${API_URL}/health")"
+          echo "$body"
+          echo "$body" | grep -q '"env":"development"'
+
+  ui-dev:
+    needs: api-dev
+    if: >-
+      ${{
+        !cancelled() &&
+        inputs.target == 'dev' &&
+        inputs.deploy_ui &&
+        (
+          needs.api-dev.result == 'success' ||
+          (
+            needs.api-dev.result == 'skipped' &&
+            !inputs.deploy_api
+          )
+        )
+      }}
+    runs-on: ubuntu-latest
+    environment: development
+    concurrency:
+      group: repair-lab-dev
+      cancel-in-progress: false
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      VITE_APP_ENV: ${{ vars.VITE_APP_ENV }}
+
+    steps:
+      - name: Check UI environment
+        run: |
+          : "${VITE_APP_ENV:?Set VITE_APP_ENV on the GitHub Environment}"
+
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build UI for development
+        run: pnpm turbo run build --filter=ui...
+
+      - name: Deploy dev UI Worker
+        working-directory: apps/ui
+        run: pnpm exec wrangler deploy --env dev
+
+      - name: Smoke test dev UI
+        if: ${{ vars.UI_URL != '' }}
+        env:
+          UI_URL: ${{ vars.UI_URL }}
+        run: |
+          body="$(curl -fsS --retry 5 --retry-delay 3 \
+            "${UI_URL}/api/health")"
+          echo "$body"
+          echo "$body" | grep -q '"env":"development"'
+
+  api-prod:
+    if: ${{ inputs.target == 'production' && inputs.deploy_api }}
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: repair-lab-production
+      cancel-in-progress: false
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Apply production D1 migrations
+        working-directory: apps/api
+        run: >-
+          pnpm exec wrangler d1 migrations apply repair-lab-db
+          --remote
+
+      - name: Deploy production API Worker
+        working-directory: apps/api
+        run: pnpm exec wrangler deploy
+
+      - name: Smoke test production API
+        if: ${{ vars.API_URL != '' }}
+        env:
+          API_URL: ${{ vars.API_URL }}
+        run: |
+          body="$(curl -fsS --retry 5 --retry-delay 3 \
+            "${API_URL}/health")"
+          echo "$body"
+          echo "$body" | grep -q '"env":"production"'
+
+  ui-prod:
+    needs: api-prod
+    if: >-
+      ${{
+        !cancelled() &&
+        inputs.target == 'production' &&
+        inputs.deploy_ui &&
+        (
+          needs.api-prod.result == 'success' ||
+          (
+            needs.api-prod.result == 'skipped' &&
+            !inputs.deploy_api
+          )
+        )
+      }}
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: repair-lab-production
+      cancel-in-progress: false
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      VITE_APP_ENV: ${{ vars.VITE_APP_ENV }}
+
+    steps:
+      - name: Check UI environment
+        run: |
+          : "${VITE_APP_ENV:?Set VITE_APP_ENV on the GitHub Environment}"
+
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build UI for production
+        run: pnpm turbo run build --filter=ui...
+
+      - name: Deploy production UI Worker
+        working-directory: apps/ui
+        run: pnpm exec wrangler deploy
+
+      - name: Smoke test production UI
+        if: ${{ vars.UI_URL != '' }}
+        env:
+          UI_URL: ${{ vars.UI_URL }}
+        run: |
+          body="$(curl -fsS --retry 5 --retry-delay 3 \
+            "${UI_URL}/api/health")"
+          echo "$body"
+          echo "$body" | grep -q '"env":"production"'

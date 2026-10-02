@@ -1,0 +1,46 @@
+name: Release production
+
+on:
+  workflow_dispatch:
+    inputs:
+      component:
+        description: What to deploy
+        required: true
+        type: choice
+        default: all
+        options:
+          - all
+          - api
+          - ui
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check
+    if: ${{ github.ref == 'refs/heads/main' }}
+    uses: ./.github/workflows/check.yml
+
+  deploy:
+    name: Deploy production
+    needs: check
+    if: >-
+      ${{
+        github.ref == 'refs/heads/main' &&
+        needs.check.result == 'success'
+      }}
+    uses: ./.github/workflows/deploy.yml
+    with:
+      target: production
+      deploy_api: >-
+        ${{
+          inputs.component == 'all' ||
+          inputs.component == 'api'
+        }}
+      deploy_ui: >-
+        ${{
+          inputs.component == 'all' ||
+          inputs.component == 'ui'
+        }}
+    secrets: inherit

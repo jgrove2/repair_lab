@@ -1,8 +1,7 @@
-name: CI
+name: PR CI
 
 on:
   pull_request:
-  push:
     branches:
       - main
 
@@ -10,37 +9,10 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: pr-ci-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
   check:
-    runs-on: ubuntu-latest
-    env:
-      VITE_APP_ENV: ci
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Typecheck
-        run: pnpm turbo run typecheck
-
-      - name: Build
-        run: pnpm turbo run build
-
-      - name: Validate wrangler config (dry run)
-        env:
-          CLOUDFLARE_API_TOKEN: dummy
-          CLOUDFLARE_ACCOUNT_ID: dummy
-        run: |
-          pnpm --filter api exec wrangler deploy --dry-run --outdir /tmp/api-dry
-          pnpm --filter api exec wrangler deploy --dry-run --outdir /tmp/api-dev-dry --env dev
-          pnpm --filter ui exec wrangler deploy --dry-run --outdir /tmp/ui-dry
-          pnpm --filter ui exec wrangler deploy --dry-run --outdir /tmp/ui-dry --env dev
+    name: Check
+    uses: ./.github/workflows/check.yml

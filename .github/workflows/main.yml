@@ -1,0 +1,65 @@
+name: Main pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check
+    uses: ./.github/workflows/check.yml
+
+  changes:
+    name: Detect deploy changes
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      ui: ${{ steps.filter.outputs.ui }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          base: main
+          filters: |
+            shared: &shared
+              - "packages/shared/**"
+              - "package.json"
+              - "pnpm-lock.yaml"
+              - "pnpm-workspace.yaml"
+              - "turbo.json"
+              - "tsconfig.base.json"
+              - ".github/workflows/**"
+            api:
+              - *shared
+              - "apps/api/**"
+            ui:
+              - *shared
+              - "apps/ui/**"
+
+  deploy-dev:
+    name: Deploy dev
+    needs:
+      - check
+      - changes
+    if: >-
+      ${{
+        needs.check.result == 'success' &&
+        needs.changes.result == 'success' &&
+        (
+          needs.changes.outputs.api == 'true' ||
+          needs.changes.outputs.ui == 'true'
+        )
+      }}
+    uses: ./.github/workflows/deploy.yml
+    with:
+      target: dev
+      deploy_api: ${{ needs.changes.outputs.api == 'true' }}
+      deploy_ui: ${{ needs.changes.outputs.ui == 'true' }}
+    secrets: inherit
