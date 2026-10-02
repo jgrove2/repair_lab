@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev --env dev --port 8787",
-    "dev:prod": "wrangler dev --env production --port 8788",
-    "deploy": "wrangler deploy --env production",
+    "dev:prod": "wrangler dev --port 8788",
+    "deploy": "wrangler deploy",
     "deploy:dev": "wrangler deploy --env dev",
-    "deploy:prod": "wrangler deploy --env production",
+    "deploy:prod": "wrangler deploy",
     "migrate:dev:local": "wrangler d1 migrations apply repair-lab-db-dev --env dev --local",
     "migrate:dev:remote": "wrangler d1 migrations apply repair-lab-db-dev --env dev --remote",
-    "migrate:prod:remote": "wrangler d1 migrations apply repair-lab-db --env production --remote",
+    "migrate:prod:remote": "wrangler d1 migrations apply repair-lab-db --remote",
     "build": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit"
@@ -23,10 +23,9 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240925.0",
+    "@cloudflare/workers-types": "^5.20261001.1",
     "@types/node": "^26.6.3",
-    "tsx": "^4.19.0",
     "typescript": "^5.6.3",
-    "wrangler": "^3.91.0"
+    "wrangler": "^4.0.0"
   }
 }

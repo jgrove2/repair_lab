@@ -6,8 +6,6 @@ compatibility_date = "2026-09-30"
 [[d1_databases]]
 binding = "DB"
 database_name = "repair-lab-db"
-# Value resolved from env var at deploy time (see docs/cloudflare-ci-setup.md)
-database_id = "be1b0c10-f03a-47db-9b2a-e7387d72538f"
 
 [[r2_buckets]]
 binding = "R2"
@@ -23,7 +21,6 @@ name = "repair-lab-api-dev"
 [[env.dev.d1_databases]]
 binding = "DB"
 database_name = "repair-lab-db-dev"
-database_id = "aa818f2a-d74d-4ad6-8890-f92eb2abfc93"
 
 [[env.dev.r2_buckets]]
 binding = "R2"

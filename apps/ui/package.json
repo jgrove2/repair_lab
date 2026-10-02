@@ -1,19 +1,16 @@
 {
-  "name": "web",
+  "name": "ui",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --port 5173",
-    "build": "tsc --noEmit && vite build",
-    "build:dev": "tsc --noEmit && vite build --mode staging",
-    "build:prod": "tsc --noEmit && vite build --mode production",
+    "build": "tsc --noEmit && tsc -p tsconfig.worker.json && vite build",
     "preview": "vite preview",
-    "preview:staging": "vite preview --mode staging",
-    "deploy:dev": "tsc --noEmit && vite build --mode staging && wrangler pages deploy dist --project-name repair-lab-web-dev",
-    "deploy:prod": "tsc --noEmit && vite build --mode production && wrangler pages deploy dist --project-name repair-lab-web",
-    "lint": "tsc --noEmit",
-    "typecheck": "tsc --noEmit"
+    "deploy:dev": "pnpm build && wrangler deploy --env dev",
+    "deploy:prod": "pnpm build && wrangler deploy",
+    "lint": "tsc --noEmit && tsc -p tsconfig.worker.json",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.worker.json"
   },
   "dependencies": {
     "@repair-lab/shared": "workspace:*",
@@ -27,6 +24,7 @@
     "@vitejs/plugin-react": "^4.3.2",
     "typescript": "^5.6.3",
     "vite": "^5.4.8",
-    "wrangler": "^3.91.0"
+    "wrangler": "^4.0.0",
+    "@cloudflare/workers-types": "^5.20261001.1"
   }
 }
