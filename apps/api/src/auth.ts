@@ -20,11 +20,11 @@ declare module "hono" {
 // already caches keys internally, so this just avoids rebuilding clients.
 const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 
-function normalizeEndpoint(endpoint: string): string {
+export function normalizeEndpoint(endpoint: string): string {
   return endpoint.replace(/\/+$/, "");
 }
 
-function getJwks(base: string): ReturnType<typeof createRemoteJWKSet> {
+export function getJwks(base: string): ReturnType<typeof createRemoteJWKSet> {
   const cached = jwksCache.get(base);
   if (cached) {
     return cached;
@@ -34,14 +34,14 @@ function getJwks(base: string): ReturnType<typeof createRemoteJWKSet> {
   return jwks;
 }
 
-function extractBearerToken(header: string | null): string | null {
+export function extractBearerToken(header: string | null): string | null {
   if (!header) {
     return null;
   }
   return header.match(/^Bearer\s+(.+)$/i)?.[1]?.trim() ?? null;
 }
 
-function authError(
+export function authError(
   c: Context<{ Bindings: Bindings }>,
   status: 401 | 500,
   error: string,

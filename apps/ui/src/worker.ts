@@ -1,3 +1,5 @@
+/// <reference types="@cloudflare/workers-types" />
+
 interface Env {
   API: Fetcher
   ASSETS: Fetcher
