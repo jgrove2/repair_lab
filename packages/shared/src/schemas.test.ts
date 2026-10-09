@@ -6,6 +6,7 @@ import {
   componentCreateSchema,
   componentSchema,
   componentUpdateSchema,
+  componentUpsertSchema,
   itemCreateSchema,
   itemSchema,
   itemStatusSchema,
@@ -202,6 +203,38 @@ describe("componentCreateSchema", () => {
 describe("componentUpdateSchema", () => {
   it("accepts empty object", () => {
     expect(componentUpdateSchema.safeParse({}).success).toBe(true);
+  });
+});
+
+describe("componentUpsertSchema", () => {
+  it("accepts a name-only payload", () => {
+    expect(componentUpsertSchema.safeParse({ name: "Cap" }).success).toBe(true);
+  });
+
+  it("accepts a location name or id", () => {
+    expect(
+      componentUpsertSchema.safeParse({ name: "Cap", location_name: "Drawer A" })
+        .success,
+    ).toBe(true);
+    expect(
+      componentUpsertSchema.safeParse({ name: "Cap", location_id: "l1" }).success,
+    ).toBe(true);
+  });
+
+  it("rejects an empty name", () => {
+    expect(componentUpsertSchema.safeParse({ name: "" }).success).toBe(false);
+  });
+
+  it("rejects a quantity below 1", () => {
+    expect(
+      componentUpsertSchema.safeParse({ name: "Cap", quantity: 0 }).success,
+    ).toBe(false);
+  });
+
+  it("rejects a non-integer quantity", () => {
+    expect(
+      componentUpsertSchema.safeParse({ name: "Cap", quantity: 1.5 }).success,
+    ).toBe(false);
   });
 });
 
