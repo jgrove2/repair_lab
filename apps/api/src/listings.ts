@@ -255,14 +255,17 @@ app.post("/listings", requireLogtoAuth(), async (c) => {
   }
 
   // Find which item ids already exist so re-runs update instead of inserting.
+  // D1 caps the number of bound parameters per query, so chunk the IN clause.
   const existing = new Set<string>();
   const itemIds = [...new Set(rows.map((row) => row.itemId))];
-  if (itemIds.length > 0) {
-    const placeholders = itemIds.map(() => "?").join(", ");
+  const IN_CLAUSE_BATCH_SIZE = 100;
+  for (let i = 0; i < itemIds.length; i += IN_CLAUSE_BATCH_SIZE) {
+    const batch = itemIds.slice(i, i + IN_CLAUSE_BATCH_SIZE);
+    const placeholders = batch.map(() => "?").join(", ");
     const { results } = await c.env.DB.prepare(
       `SELECT item_id FROM listings WHERE item_id IN (${placeholders})`,
     )
-      .bind(...itemIds)
+      .bind(...batch)
       .all<{ item_id: string }>();
     for (const row of results ?? []) {
       existing.add(row.item_id);
