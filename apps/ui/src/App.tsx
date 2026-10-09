@@ -4,6 +4,7 @@ import SalesHome from "./pages/SalesHome";
 import Home from "./pages/Home";
 import Inventory from "./pages/Inventory";
 import Tasks from "./pages/Tasks";
+import Listings from "./pages/Listings";
 import Callback from "./pages/Callback";
 import {
   RedirectIfAuthenticated,
@@ -29,6 +30,7 @@ export default function App() {
             <Route path="/app" element={<Home />} />
             <Route path="/app/inventory" element={<Inventory />} />
             <Route path="/app/tasks" element={<Tasks />} />
+            <Route path="/app/listings" element={<Listings />} />
           </Route>
         </Routes>
       </LogtoProvider>

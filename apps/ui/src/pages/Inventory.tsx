@@ -111,37 +111,45 @@ export default function Inventory() {
       ) : components.length === 0 ? (
         <p className="inventory-status">No components yet.</p>
       ) : (
-        <table className="inventory-table">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Category</th>
-              <th scope="col">Quantity</th>
-              <th scope="col">Location</th>
-              <th scope="col">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {components.map((component) => (
-              <tr key={component.id}>
-                <td>{component.name}</td>
-                <td>{component.category ?? "—"}</td>
-                <td>{component.quantity}</td>
-                <td>{component.location_name ?? "—"}</td>
-                <td>
-                  <button
-                    type="button"
-                    className="inventory-edit"
-                    disabled
-                    title="Editing is not available yet"
-                  >
-                    Edit
-                  </button>
-                </td>
+        <div className="inventory-table-wrapper">
+          <table className="inventory-table">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Category</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Location</th>
+                <th scope="col">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {components.map((component) => (
+                <tr key={component.id}>
+                  <td data-label="Name">{component.name}</td>
+                  <td data-label="Category">{component.category ?? "—"}</td>
+                  <td data-label="Quantity">
+                    <span className="quantity-badge">
+                      {component.quantity}
+                    </span>
+                  </td>
+                  <td data-label="Location">
+                    {component.location_name ?? "—"}
+                  </td>
+                  <td className="inventory-actions-cell" data-label="Actions">
+                    <button
+                      type="button"
+                      className="inventory-edit"
+                      disabled
+                      title="Editing is not available yet"
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <nav className="inventory-pagination" aria-label="Pagination">

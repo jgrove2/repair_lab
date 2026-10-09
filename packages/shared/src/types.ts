@@ -114,6 +114,30 @@ export interface Candidate {
   discovered_at: string;
 }
 
+// A single listing surfaced by the research agent, flattened from its per-product
+// JSON output. Money fields are parsed to numbers (or null when unparseable).
+// `includes_*` are 0/1 (SQLite has no boolean type).
+export interface Listing {
+  id: string;
+  product: string;
+  item_id: string;
+  title: string;
+  short_description: string | null;
+  price: number | null;
+  currency: string | null;
+  url: string | null;
+  condition: string | null;
+  shipping_cost: number | null;
+  shipping_currency: string | null;
+  shipping_cost_type: string | null;
+  total_cost: number | null;
+  includes_controllers: number;
+  includes_games: number;
+  includes_cords: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // A component joined with its location's display name, as returned by the
 // inventory list endpoint.
 export interface ComponentListItem extends Component {

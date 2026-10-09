@@ -234,6 +234,9 @@ nav.topnav a:hover {
 main {
   padding: 16px;
   max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 /* Public sales home fills the viewport so its title can sit dead center. */
 .home {
@@ -296,27 +299,125 @@ button {
 .inventory-add {
   margin-left: auto;
 }
+.inventory-table-wrapper {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow-x: auto;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+}
 .inventory-table {
   width: 100%;
   border-collapse: collapse;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
 }
 .inventory-table th,
 .inventory-table td {
   text-align: left;
-  padding: 10px 12px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 12px;
+  border-bottom: 1px solid #f3f4f6;
 }
 .inventory-table th {
   background: #f9fafb;
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+.inventory-table td {
+  font-size: 14px;
+  color: #1f2937;
+}
+.inventory-table th:nth-child(3),
+.inventory-table td:nth-child(3),
+.inventory-table th:nth-child(5),
+.inventory-table td:nth-child(5) {
+  text-align: right;
 }
 .inventory-table tbody tr:last-child td {
   border-bottom: none;
+}
+@media (min-width: 768px) {
+  .inventory-table tbody tr:nth-child(even) {
+    background: #fafafa;
+  }
+  .inventory-table tbody tr:hover {
+    background: #f5f3ff;
+  }
+}
+.quantity-badge {
+  display: inline-block;
+  min-width: 28px;
+  padding: 2px 8px;
+  text-align: center;
+  background: #eef2ff;
+  color: #4338ca;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.inventory-edit {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+}
+@media (max-width: 767px) {
+  .inventory-table-wrapper {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+  .inventory-table {
+    display: block;
+    background: transparent;
+  }
+  .inventory-table thead {
+    display: none;
+  }
+  .inventory-table tbody {
+    display: block;
+  }
+  .inventory-table tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+    overflow: hidden;
+  }
+  .inventory-table th:nth-child(3),
+  .inventory-table td:nth-child(3),
+  .inventory-table th:nth-child(5),
+  .inventory-table td:nth-child(5) {
+    text-align: left;
+  }
+  .inventory-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .inventory-table td::before {
+    content: attr(data-label);
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+  }
+  .inventory-table td.inventory-actions-cell {
+    justify-content: flex-end;
+  }
+  .inventory-table td.inventory-actions-cell::before {
+    content: none;
+  }
 }
 .inventory-status {
   color: #6b7280;
@@ -442,4 +543,193 @@ button {
 .modal-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+.listings-title {
+  margin: 0 0 12px;
+  font-size: 1.5rem;
+}
+.listings-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.listings-tab {
+  padding: 8px 16px;
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  font-size: 14px;
+}
+.listings-tab.active {
+  background: #6d28d9;
+  color: #ffffff;
+  border-color: #6d28d9;
+}
+.listings-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.listings-search {
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  width: 260px;
+  max-width: 100%;
+}
+.listings-toolbar select {
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+}
+.listings-filter {
+  font-size: 14px;
+  color: #374151;
+}
+.listings-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #374151;
+}
+.listings-table-wrapper {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow-x: auto;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+}
+.listings-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+.listings-table th,
+.listings-table td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+.listings-table th {
+  background: #f9fafb;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+.listings-table td {
+  font-size: 14px;
+  color: #1f2937;
+}
+.listings-table th:nth-child(2),
+.listings-table td:nth-child(2),
+.listings-table th:nth-child(4),
+.listings-table td:nth-child(4),
+.listings-table th:nth-child(5),
+.listings-table td:nth-child(5) {
+  text-align: right;
+}
+.listings-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.listings-sort {
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+.listings-sort:hover {
+  color: #6d28d9;
+}
+.listings-link {
+  color: #6d28d9;
+  text-decoration: none;
+}
+.listings-link:hover {
+  text-decoration: underline;
+}
+.listings-status {
+  color: #6b7280;
+}
+.listings-pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+.listings-pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+@media (min-width: 768px) {
+  .listings-table tbody tr:nth-child(even) {
+    background: #fafafa;
+  }
+  .listings-table tbody tr:hover {
+    background: #f5f3ff;
+  }
+}
+@media (max-width: 767px) {
+  .listings-table-wrapper {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+  .listings-table {
+    display: block;
+    background: transparent;
+  }
+  .listings-table thead {
+    display: none;
+  }
+  .listings-table tbody {
+    display: block;
+  }
+  .listings-table tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+    overflow: hidden;
+  }
+  .listings-table th:nth-child(2),
+  .listings-table td:nth-child(2),
+  .listings-table th:nth-child(4),
+  .listings-table td:nth-child(4),
+  .listings-table th:nth-child(5),
+  .listings-table td:nth-child(5) {
+    text-align: left;
+  }
+  .listings-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .listings-table td::before {
+    content: attr(data-label);
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+  }
 }

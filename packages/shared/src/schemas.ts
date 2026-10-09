@@ -225,6 +225,76 @@ export const candidateCreateSchema = z.object({
 
 export const candidateUpdateSchema = candidateCreateSchema.partial();
 
+// The agent emits money values as strings (e.g. "14.77"). Normalise number,
+// numeric string, or empty/unparseable input into a `number | null` so the
+// dashboard can sort by these columns.
+export const moneySchema = z
+  .union([z.number(), z.string(), z.null()])
+  .transform((value): number | null => {
+    if (value === null) {
+      return null;
+    }
+    if (typeof value === "number") {
+      return Number.isFinite(value) ? value : null;
+    }
+    const cleaned = value.replace(/\$/g, "").replace(/,/g, "").trim();
+    if (cleaned === "") {
+      return null;
+    }
+    const parsed = Number(cleaned);
+    return Number.isFinite(parsed) ? parsed : null;
+  });
+
+// A single listing as ingested from the research agent.
+export const listingInputSchema = z.object({
+  item_id: z.string().min(1),
+  title: z.string().min(1),
+  short_description: z.string().optional(),
+  price: moneySchema.optional(),
+  currency: z.string().optional(),
+  url: z.string().optional(),
+  condition: z.string().optional(),
+  shipping_cost: moneySchema.optional(),
+  shipping_currency: z.string().optional(),
+  shipping_cost_type: z.string().optional(),
+  total_cost: moneySchema.optional(),
+  included: z
+    .object({
+      controllers: z.boolean().optional(),
+      games: z.boolean().optional(),
+      cords: z.boolean().optional(),
+    })
+    .optional(),
+});
+
+// The agent's combined output: { "<product>": [ listing, ... ], ... }.
+export const agentIngestSchema = z.record(
+  z.string().min(1),
+  z.array(listingInputSchema),
+);
+
+// Read model returned by the API (matches the listings table).
+export const listingSchema = z.object({
+  id: z.string(),
+  product: z.string(),
+  item_id: z.string(),
+  title: z.string(),
+  short_description: z.string().nullable(),
+  price: z.number().nullable(),
+  currency: z.string().nullable(),
+  url: z.string().nullable(),
+  condition: z.string().nullable(),
+  shipping_cost: z.number().nullable(),
+  shipping_currency: z.string().nullable(),
+  shipping_cost_type: z.string().nullable(),
+  total_cost: z.number().nullable(),
+  includes_controllers: z.number(),
+  includes_games: z.number(),
+  includes_cords: z.number(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+
 // Inferred TS types from zod (complements src/types.ts)
 export type ItemInput = z.infer<typeof itemCreateSchema>;
 export type TicketInput = z.infer<typeof ticketCreateSchema>;
@@ -233,3 +303,5 @@ export type LocationInput = z.infer<typeof locationCreateSchema>;
 export type ComponentInput = z.infer<typeof componentCreateSchema>;
 export type ComponentUpsertInput = z.infer<typeof componentUpsertSchema>;
 export type CandidateInput = z.infer<typeof candidateCreateSchema>;
+export type ListingInput = z.infer<typeof listingInputSchema>;
+export type AgentIngestInput = z.infer<typeof agentIngestSchema>;
