@@ -295,6 +295,39 @@ export const listingSchema = z.object({
   updated_at: z.string(),
 });
 
+// A manually-entered sold console (matches the sold_records table).
+export const soldRecordSchema = z.object({
+  id: z.string(),
+  product: z.string(),
+  sub_product_code: z.string().nullable(),
+  sold_price: z.number(),
+  sold_date: z.string(),
+  includes_controllers: z.number(),
+  includes_games: z.number(),
+  includes_cords: z.number(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+
+export const soldRecordCreateSchema = z.object({
+  product: z.string().min(1),
+  sub_product_code: z.string().optional(),
+  sold_price: z.number().min(0),
+  sold_date: z.string().optional(),
+  controllers: z.boolean().optional(),
+  games: z.boolean().optional(),
+  cords: z.boolean().optional(),
+});
+
+// Aggregate stats for the average-sold-price endpoint.
+export const soldPriceStatsSchema = z.object({
+  count: z.number(),
+  average: z.number().nullable(),
+  min: z.number().nullable(),
+  max: z.number().nullable(),
+  median: z.number().nullable(),
+});
+
 // Inferred TS types from zod (complements src/types.ts)
 export type ItemInput = z.infer<typeof itemCreateSchema>;
 export type TicketInput = z.infer<typeof ticketCreateSchema>;
@@ -305,3 +338,4 @@ export type ComponentUpsertInput = z.infer<typeof componentUpsertSchema>;
 export type CandidateInput = z.infer<typeof candidateCreateSchema>;
 export type ListingInput = z.infer<typeof listingInputSchema>;
 export type AgentIngestInput = z.infer<typeof agentIngestSchema>;
+export type SoldRecordInput = z.infer<typeof soldRecordCreateSchema>;

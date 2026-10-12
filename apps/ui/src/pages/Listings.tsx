@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
-import type { Listing, PaginatedResponse } from "@repair-lab/shared";
+import type {
+  Listing,
+  PaginatedResponse,
+  SoldPriceStats,
+  SoldRecord,
+} from "@repair-lab/shared";
 import { useApi } from "../lib/api";
+import AddSoldRecordModal from "../components/AddSoldRecordModal";
 
 const PAGE_SIZE = 25;
 
@@ -22,8 +28,13 @@ function formatMoney(value: number | null, currency: string | null): string {
   return currency === "USD" ? `$${amount}` : `${amount} ${currency ?? ""}`.trim();
 }
 
+function formatStats(value: number | null | undefined): string {
+  return value === null || value === undefined ? "—" : `$${value.toFixed(2)}`;
+}
+
 // Authenticated research dashboard: product tabs plus a server-sorted/filtered
-// table of the listings the research agent ingested.
+// table of the listings the research agent ingested. Also hosts manual sold
+// records and an average-sold-price widget.
 export default function Listings() {
   const { fetch: apiFetch } = useApi();
 
@@ -47,6 +58,22 @@ export default function Listings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  const [soldProducts, setSoldProducts] = useState<string[]>([]);
+  const [soldRecords, setSoldRecords] = useState<SoldRecord[]>([]);
+  const [soldReload, setSoldReload] = useState(0);
+  const [addSoldOpen, setAddSoldOpen] = useState(false);
+
+  const [avgProduct, setAvgProduct] = useState("");
+  const [avgSubCode, setAvgSubCode] = useState("");
+  const [avgSubCodeQ, setAvgSubCodeQ] = useState("");
+  const [avgControllers, setAvgControllers] = useState(false);
+  const [avgGames, setAvgGames] = useState(false);
+  const [avgCords, setAvgCords] = useState(false);
+  const [stats, setStats] = useState<SoldPriceStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  const allProducts = Array.from(new Set([...products, ...soldProducts]));
+
   useEffect(() => {
     let cancelled = false;
     apiFetch("/listings/filters")
@@ -67,6 +94,101 @@ export default function Listings() {
       cancelled = true;
     };
   }, [apiFetch]);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiFetch("/sold-records/products")
+      .then((res) => res.json() as Promise<{ products: string[] }>)
+      .then((body) => {
+        if (!cancelled) {
+          setSoldProducts(body.products ?? []);
+        }
+      })
+      .catch(() => {
+        /* best-effort; products still come from listings */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [apiFetch]);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiFetch("/sold-records?page=1&pageSize=100&sort=sold_date&order=desc")
+      .then((res) => res.json() as Promise<PaginatedResponse<SoldRecord>>)
+      .then((body) => {
+        if (!cancelled) {
+          setSoldRecords(body.data);
+        }
+      })
+      .catch(() => {
+        /* best-effort */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [apiFetch, soldReload]);
+
+  useEffect(() => {
+    setAvgProduct((current) =>
+      current === "" && allProducts.length > 0 ? allProducts[0] : current,
+    );
+  }, [products, soldProducts]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAvgSubCodeQ(avgSubCode.trim());
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [avgSubCode]);
+
+  useEffect(() => {
+    if (!avgProduct.trim()) {
+      setStats(null);
+      return;
+    }
+
+    let cancelled = false;
+    setStatsLoading(true);
+
+    const params = new URLSearchParams();
+    params.set("product", avgProduct.trim());
+    if (avgSubCodeQ) {
+      params.set("sub_product_code", avgSubCodeQ);
+    }
+    if (avgControllers) {
+      params.set("controllers", "1");
+    }
+    if (avgGames) {
+      params.set("games", "1");
+    }
+    if (avgCords) {
+      params.set("cords", "1");
+    }
+
+    apiFetch(`/sold-records/average?${params.toString()}`)
+      .then((res) => res.json() as Promise<SoldPriceStats>)
+      .then((body) => {
+        if (cancelled) {
+          return;
+        }
+        setStats(typeof body?.count === "number" ? body : null);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setStats(null);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setStatsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [apiFetch, avgProduct, avgSubCodeQ, avgControllers, avgGames, avgCords]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -335,6 +457,146 @@ export default function Listings() {
           Next
         </button>
       </nav>
+
+      <section className="sold">
+        <h2 className="sold-title">Average sold price</h2>
+        <div className="sold-average-toolbar">
+          <label className="sold-filter" htmlFor="sold-avg-product">
+            Product
+          </label>
+          <select
+            id="sold-avg-product"
+            value={avgProduct}
+            onChange={(event) => setAvgProduct(event.target.value)}
+          >
+            {allProducts.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+          <input
+            type="text"
+            className="sold-sub-code"
+            placeholder="Sub-product code…"
+            aria-label="Sub-product code"
+            value={avgSubCode}
+            onChange={(event) => setAvgSubCode(event.target.value)}
+          />
+          <label className="sold-checkbox">
+            <input
+              type="checkbox"
+              aria-label="Average controllers"
+              checked={avgControllers}
+              onChange={(event) => setAvgControllers(event.target.checked)}
+            />
+            Controllers
+          </label>
+          <label className="sold-checkbox">
+            <input
+              type="checkbox"
+              aria-label="Average games"
+              checked={avgGames}
+              onChange={(event) => setAvgGames(event.target.checked)}
+            />
+            Games
+          </label>
+          <label className="sold-checkbox">
+            <input
+              type="checkbox"
+              aria-label="Average cords"
+              checked={avgCords}
+              onChange={(event) => setAvgCords(event.target.checked)}
+            />
+            Cords
+          </label>
+        </div>
+        <div className="sold-stats" aria-label="Sold price stats">
+          {statsLoading ? (
+            <span>Loading…</span>
+          ) : (
+            <>
+              <span className="sold-stat">
+                Avg <strong>{formatStats(stats?.average)}</strong>
+              </span>
+              <span className="sold-stat">
+                Min <strong>{formatStats(stats?.min)}</strong>
+              </span>
+              <span className="sold-stat">
+                Max <strong>{formatStats(stats?.max)}</strong>
+              </span>
+              <span className="sold-stat">
+                Median <strong>{formatStats(stats?.median)}</strong>
+              </span>
+              <span className="sold-stat">
+                Count <strong>{stats?.count ?? 0}</strong>
+              </span>
+            </>
+          )}
+        </div>
+      </section>
+
+      <section className="sold">
+        <h2 className="sold-title">Sold records</h2>
+        <div className="sold-toolbar">
+          <button
+            type="button"
+            className="sold-add"
+            onClick={() => setAddSoldOpen(true)}
+          >
+            Add sold
+          </button>
+        </div>
+        {addSoldOpen && (
+          <AddSoldRecordModal
+            products={allProducts}
+            onClose={() => setAddSoldOpen(false)}
+            onSaved={() => setSoldReload((current) => current + 1)}
+          />
+        )}
+        {soldRecords.length === 0 ? (
+          <p className="sold-status">No sold records yet.</p>
+        ) : (
+          <div className="sold-table-wrapper">
+            <table className="sold-table">
+              <thead>
+                <tr>
+                  <th scope="col">Product</th>
+                  <th scope="col">Sub-product</th>
+                  <th scope="col">Price</th>
+                  <th scope="col">Sold date</th>
+                  <th scope="col">Controllers</th>
+                  <th scope="col">Games</th>
+                  <th scope="col">Cords</th>
+                </tr>
+              </thead>
+              <tbody>
+                {soldRecords.map((record) => (
+                  <tr key={record.id}>
+                    <td data-label="Product">{record.product}</td>
+                    <td data-label="Sub-product">
+                      {record.sub_product_code ?? "—"}
+                    </td>
+                    <td data-label="Price">
+                      {formatMoney(record.sold_price, "USD")}
+                    </td>
+                    <td data-label="Sold date">{record.sold_date}</td>
+                    <td data-label="Controllers">
+                      {record.includes_controllers ? "Yes" : "No"}
+                    </td>
+                    <td data-label="Games">
+                      {record.includes_games ? "Yes" : "No"}
+                    </td>
+                    <td data-label="Cords">
+                      {record.includes_cords ? "Yes" : "No"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </section>
   );
 }

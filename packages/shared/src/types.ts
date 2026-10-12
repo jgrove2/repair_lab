@@ -138,6 +138,30 @@ export interface Listing {
   updated_at: string;
 }
 
+// A manually-entered sold console. `sub_product_code` narrows the broad
+// `product` (e.g. "wii" -> "RVL-001") when present; `includes_*` are 0/1.
+export interface SoldRecord {
+  id: string;
+  product: string;
+  sub_product_code: string | null;
+  sold_price: number;
+  sold_date: string;
+  includes_controllers: number;
+  includes_games: number;
+  includes_cords: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// Aggregate stats returned by the average-sold-price endpoint.
+export interface SoldPriceStats {
+  count: number;
+  average: number | null;
+  min: number | null;
+  max: number | null;
+  median: number | null;
+}
+
 // A component joined with its location's display name, as returned by the
 // inventory list endpoint.
 export interface ComponentListItem extends Component {

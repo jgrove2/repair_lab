@@ -733,3 +733,194 @@ button {
     color: #6b7280;
   }
 }
+
+/* Modal select + checkbox variants (sold record form) */
+.modal-field select {
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+.modal-field-label {
+  font-size: 14px;
+  color: #374151;
+}
+.modal-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* Sold records + average price widget */
+.sold {
+  margin-top: 24px;
+}
+.sold-title {
+  margin: 0 0 12px;
+  font-size: 1.25rem;
+}
+.sold-average-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.sold-average-toolbar select {
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+}
+.sold-filter {
+  font-size: 14px;
+  color: #374151;
+}
+.sold-sub-code {
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  width: 200px;
+  max-width: 100%;
+}
+.sold-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #374151;
+}
+.sold-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.sold-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #6b7280;
+}
+.sold-stat strong {
+  color: #1f2937;
+  font-size: 16px;
+}
+.sold-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+.sold-add {
+  background: #6d28d9;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+.sold-status {
+  color: #6b7280;
+}
+.sold-table-wrapper {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow-x: auto;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+}
+.sold-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+.sold-table th,
+.sold-table td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+.sold-table th {
+  background: #f9fafb;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+.sold-table td {
+  font-size: 14px;
+  color: #1f2937;
+}
+.sold-table th:nth-child(3),
+.sold-table td:nth-child(3) {
+  text-align: right;
+}
+.sold-table tbody tr:last-child td {
+  border-bottom: none;
+}
+@media (min-width: 768px) {
+  .sold-table tbody tr:nth-child(even) {
+    background: #fafafa;
+  }
+  .sold-table tbody tr:hover {
+    background: #f5f3ff;
+  }
+}
+@media (max-width: 767px) {
+  .sold-table-wrapper {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+  .sold-table {
+    display: block;
+    background: transparent;
+  }
+  .sold-table thead {
+    display: none;
+  }
+  .sold-table tbody {
+    display: block;
+  }
+  .sold-table tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+    overflow: hidden;
+  }
+  .sold-table th:nth-child(3),
+  .sold-table td:nth-child(3) {
+    text-align: left;
+  }
+  .sold-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .sold-table td::before {
+    content: attr(data-label);
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+  }
+}

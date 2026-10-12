@@ -17,6 +17,9 @@ import {
   preferenceCreateSchema,
   preferenceSchema,
   preferenceUpdateSchema,
+  soldPriceStatsSchema,
+  soldRecordCreateSchema,
+  soldRecordSchema,
   ticketComponentCreateSchema,
   ticketComponentSchema,
   ticketCreateSchema,
@@ -301,6 +304,65 @@ describe("candidateCreateSchema", () => {
   });
 });
 
+describe("soldRecordCreateSchema", () => {
+  it("accepts a minimal valid payload", () => {
+    expect(
+      soldRecordCreateSchema.safeParse({ product: "wii", sold_price: 30 }).success,
+    ).toBe(true);
+  });
+
+  it("accepts optional sub-product code and included flags", () => {
+    expect(
+      soldRecordCreateSchema.safeParse({
+        product: "wii",
+        sold_price: 30,
+        sub_product_code: "RVL-001",
+        controllers: true,
+        games: false,
+        cords: true,
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects an empty product", () => {
+    expect(
+      soldRecordCreateSchema.safeParse({ product: "", sold_price: 30 }).success,
+    ).toBe(false);
+  });
+
+  it("rejects a negative price", () => {
+    expect(
+      soldRecordCreateSchema.safeParse({ product: "wii", sold_price: -1 }).success,
+    ).toBe(false);
+  });
+});
+
+describe("soldPriceStatsSchema", () => {
+  it("accepts a populated stats object", () => {
+    expect(
+      soldPriceStatsSchema.safeParse({
+        count: 2,
+        average: 20,
+        min: 10,
+        max: 30,
+        median: 20,
+      }).success,
+    ).toBe(true);
+  });
+
+  it("accepts null stats for an empty set", () => {
+    expect(
+      soldPriceStatsSchema.safeParse({
+        count: 0,
+        average: null,
+        min: null,
+        max: null,
+        median: null,
+      }).success,
+    ).toBe(true);
+  });
+});
+
 describe("full-object schemas", () => {
   const fullItem = {
     id: "1",
@@ -433,6 +495,23 @@ describe("full-object schemas", () => {
         listing_url: null,
         status: "new",
         discovered_at: "2026-01-01",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("parses a full sold record", () => {
+    expect(
+      soldRecordSchema.safeParse({
+        id: "1",
+        product: "wii",
+        sub_product_code: null,
+        sold_price: 30,
+        sold_date: "2026-10-01",
+        includes_controllers: 1,
+        includes_games: 0,
+        includes_cords: 1,
+        created_at: "2026-10-01",
+        updated_at: "2026-10-01",
       }).success,
     ).toBe(true);
   });
