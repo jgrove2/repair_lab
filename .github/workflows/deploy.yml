@@ -17,6 +17,7 @@ jobs:
   api:
     if: ${{ inputs.deploy_api }}
     runs-on: ubuntu-latest
+    environment: production
     concurrency:
       group: repair-lab
       cancel-in-progress: false
@@ -71,6 +72,7 @@ jobs:
         )
       }}
     runs-on: ubuntu-latest
+    environment: production
     concurrency:
       group: repair-lab
       cancel-in-progress: false
