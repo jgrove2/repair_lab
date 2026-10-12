@@ -272,6 +272,30 @@ app.post("/listings", requireLogtoAuth(), async (c) => {
     }
   }
 
+  // Remove listings that were absent from this run and have gone a full
+  // calendar day without being refreshed. `updated_at` is bumped on every
+  // upsert, so a row only becomes stale once it has not appeared in any
+  // ingest since before the start of today.
+  let deleted = 0;
+  const staleRows = await c.env.DB.prepare(
+    "SELECT item_id FROM listings WHERE updated_at < datetime('now', 'start of day')",
+  ).all<{ item_id: string }>();
+  const incomingIds = new Set(itemIds);
+  const toDelete = (staleRows.results ?? [])
+    .map((row) => row.item_id)
+    .filter((itemId) => !incomingIds.has(itemId));
+
+  for (let i = 0; i < toDelete.length; i += IN_CLAUSE_BATCH_SIZE) {
+    const batch = toDelete.slice(i, i + IN_CLAUSE_BATCH_SIZE);
+    const placeholders = batch.map(() => "?").join(", ");
+    const result = await c.env.DB.prepare(
+      `DELETE FROM listings WHERE item_id IN (${placeholders})`,
+    )
+      .bind(...batch)
+      .run();
+    deleted += result.meta.changes;
+  }
+
   let inserted = 0;
   let updated = 0;
 
@@ -312,7 +336,7 @@ app.post("/listings", requireLogtoAuth(), async (c) => {
     }
   }
 
-  return c.json({ inserted, updated, total: inserted + updated });
+  return c.json({ inserted, updated, deleted, total: inserted + updated });
 });
 
 export default app;

@@ -41,8 +41,8 @@ type DbHandler = (sql: string, params: unknown[]) => {
   first?: unknown;
 };
 
-function makeDbEnv(handler: DbHandler) {
-  const run = vi.fn().mockResolvedValue({ success: true, meta: {} });
+function makeDbEnv(handler: DbHandler, changes = 0) {
+  const run = vi.fn().mockResolvedValue({ success: true, meta: { changes } });
   const statement = (sql: string, params: unknown[]) => ({
     first: () => Promise.resolve(handler(sql, params).first ?? null),
     all: () =>
@@ -308,7 +308,12 @@ describe("POST /listings", () => {
     );
 
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ inserted: 1, updated: 0, total: 1 });
+    expect(await res.json()).toEqual({
+      inserted: 1,
+      updated: 0,
+      deleted: 0,
+      total: 1,
+    });
     expect(run).toHaveBeenCalledTimes(1);
     const insertParams = run.mock.calls[0] as unknown[];
     expect(insertParams[1]).toBe("wii");
@@ -334,7 +339,47 @@ describe("POST /listings", () => {
       env,
     );
 
-    expect(await res.json()).toEqual({ inserted: 0, updated: 1, total: 1 });
+    expect(await res.json()).toEqual({
+      inserted: 0,
+      updated: 1,
+      deleted: 0,
+      total: 1,
+    });
+  });
+
+  it("deletes listings absent from the payload that predate today", async () => {
+    const { env, prepare } = makeDbEnv(
+      (sql) => {
+        if (sql.includes("SELECT item_id FROM listings WHERE updated_at")) {
+          return { all: [{ item_id: "stale-1" }] };
+        }
+        if (sql.includes("SELECT item_id FROM listings WHERE item_id IN")) {
+          return { all: [] };
+        }
+        return {};
+      },
+      1,
+    );
+
+    const res = await listings.request(
+      "/listings",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+      env,
+    );
+
+    expect(await res.json()).toEqual({
+      inserted: 1,
+      updated: 0,
+      deleted: 1,
+      total: 1,
+    });
+    expect(prepare).toHaveBeenCalledWith(
+      expect.stringContaining("DELETE FROM listings WHERE item_id IN (?)"),
+    );
   });
 
   it("rejects malformed JSON", async () => {
