@@ -237,6 +237,60 @@ describe("GET /sold-records/products", () => {
   });
 });
 
+describe("GET /sold-records/summary", () => {
+  it("returns an empty list when there are no records", async () => {
+    const { env } = makeDbEnv(() => ({ all: [] }));
+
+    const res = await sold.request("/sold-records/summary", {}, env);
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ products: [] });
+  });
+
+  it("groups stats by product and sub-product code, including null codes", async () => {
+    const { env } = makeDbEnv(() => ({
+      all: [
+        { product: "wii", sub_product_code: "RVL-001", sold_price: 10 },
+        { product: "wii", sub_product_code: "RVL-001", sold_price: 30 },
+        { product: "wii", sub_product_code: null, sold_price: 50 },
+        { product: "gamecube", sub_product_code: "DOL-001", sold_price: 20 },
+      ],
+    }));
+
+    const res = await sold.request("/sold-records/summary", {}, env);
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      products: [
+        {
+          product: "gamecube",
+          overall: { count: 1, average: 20, min: 20, max: 20, median: 20 },
+          sub_products: [
+            {
+              sub_product_code: "DOL-001",
+              stats: { count: 1, average: 20, min: 20, max: 20, median: 20 },
+            },
+          ],
+        },
+        {
+          product: "wii",
+          overall: { count: 3, average: 30, min: 10, max: 50, median: 30 },
+          sub_products: [
+            {
+              sub_product_code: null,
+              stats: { count: 1, average: 50, min: 50, max: 50, median: 50 },
+            },
+            {
+              sub_product_code: "RVL-001",
+              stats: { count: 2, average: 20, min: 10, max: 30, median: 20 },
+            },
+          ],
+        },
+      ],
+    });
+  });
+});
+
 describe("POST /sold-records", () => {
   it("creates a record and coerces flags to 0/1", async () => {
     const { env, run } = makeDbEnv((sql) =>

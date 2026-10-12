@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { SoldRecord } from "@repair-lab/shared";
+import type { SoldProductSummary } from "@repair-lab/shared";
 
 const mocks = vi.hoisted(() => ({
   fetch: vi.fn(),
@@ -12,18 +12,16 @@ vi.mock("../lib/api", () => ({
 
 import Sold from "./Sold";
 
-function makeSoldRecord(overrides: Partial<SoldRecord> = {}): SoldRecord {
+function makeSummary(overrides: Partial<SoldProductSummary> = {}): SoldProductSummary {
   return {
-    id: "s1",
     product: "wii",
-    sub_product_code: "RVL-001",
-    sold_price: 30,
-    sold_date: "2026-10-01",
-    includes_controllers: 1,
-    includes_games: 0,
-    includes_cords: 1,
-    created_at: "2026-10-01",
-    updated_at: "2026-10-01",
+    overall: { count: 2, average: 30, min: 20, max: 40, median: 30 },
+    sub_products: [
+      {
+        sub_product_code: "RVL-001",
+        stats: { count: 2, average: 30, min: 20, max: 40, median: 30 },
+      },
+    ],
     ...overrides,
   };
 }
@@ -36,7 +34,7 @@ function mockFetches(
   overrides: {
     filters?: unknown;
     soldProducts?: unknown;
-    soldRecords?: unknown;
+    summary?: unknown;
   } = {},
 ) {
   mocks.fetch.mockImplementation((path: string) => {
@@ -46,10 +44,8 @@ function mockFetches(
     if (path === "/sold-records/products") {
       return respond(overrides.soldProducts ?? { products: [] });
     }
-    if (path.startsWith("/sold-records")) {
-      return respond(
-        overrides.soldRecords ?? { data: [], page: 1, pageSize: 100, total: 0 },
-      );
+    if (path === "/sold-records/summary") {
+      return respond(overrides.summary ?? { products: [] });
     }
     return respond({});
   });
@@ -67,31 +63,41 @@ describe("Sold", () => {
     expect(await screen.findByText("No sold records yet.")).toBeInTheDocument();
   });
 
-  it("fetches sold records sorted by date descending", async () => {
+  it("fetches the sold summary", async () => {
     render(<Sold />);
 
     await waitFor(() =>
-      expect(mocks.fetch).toHaveBeenCalledWith(
-        "/sold-records?page=1&pageSize=100&sort=sold_date&order=desc",
-      ),
+      expect(mocks.fetch).toHaveBeenCalledWith("/sold-records/summary"),
     );
   });
 
-  it("renders sold records in the table", async () => {
+  it("renders product cards with sub-product and overall stats", async () => {
     mockFetches({
-      soldRecords: {
-        data: [makeSoldRecord()],
-        page: 1,
-        pageSize: 100,
-        total: 1,
+      summary: {
+        products: [
+          makeSummary(),
+          makeSummary({
+            product: "gamecube",
+            sub_products: [
+              {
+                sub_product_code: null,
+                stats: { count: 1, average: 50, min: 50, max: 50, median: 50 },
+              },
+            ],
+            overall: { count: 1, average: 50, min: 50, max: 50, median: 50 },
+          }),
+        ],
       },
     });
 
     render(<Sold />);
 
-    expect(await screen.findByText("RVL-001")).toBeInTheDocument();
-    expect(screen.getByText("$30.00")).toBeInTheDocument();
-    expect(screen.getByText("2026-10-01")).toBeInTheDocument();
+    expect(await screen.findByText("wii")).toBeInTheDocument();
+    expect(screen.getByText("gamecube")).toBeInTheDocument();
+
+    expect(screen.getByText("RVL-001")).toBeInTheDocument();
+    expect(screen.getAllByText("$30.00").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("$50.00").length).toBeGreaterThan(0);
   });
 
   it("opens the add sold modal", async () => {

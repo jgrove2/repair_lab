@@ -4,7 +4,9 @@ import { soldRecordCreateSchema } from "@repair-lab/shared";
 import type {
   PaginatedResponse,
   SoldPriceStats,
+  SoldProductSummary,
   SoldRecord,
+  SoldSubProductSummary,
 } from "@repair-lab/shared";
 import type { Bindings } from "./bindings.js";
 import { requireLogtoAuth } from "./auth.js";
@@ -136,6 +138,59 @@ app.get("/sold-records/sub-products", requireLogtoAuth(), async (c) => {
   return c.json({
     codes: (results ?? []).map((row) => row.sub_product_code),
   });
+});
+
+app.get("/sold-records/summary", requireLogtoAuth(), async (c) => {
+  const { results } = await c.env.DB.prepare(
+    `SELECT product, sub_product_code, sold_price
+       FROM sold_records
+      ORDER BY product ASC, sub_product_code ASC, sold_price ASC`,
+  ).all<{
+    product: string;
+    sub_product_code: string | null;
+    sold_price: number;
+  }>();
+
+  const byProduct = new Map<
+    string,
+    { prices: number[]; byCode: Map<string | null, number[]> }
+  >();
+
+  for (const row of results ?? []) {
+    let entry = byProduct.get(row.product);
+    if (!entry) {
+      entry = { prices: [], byCode: new Map() };
+      byProduct.set(row.product, entry);
+    }
+    entry.prices.push(row.sold_price);
+
+    const codePrices = entry.byCode.get(row.sub_product_code) ?? [];
+    codePrices.push(row.sold_price);
+    entry.byCode.set(row.sub_product_code, codePrices);
+  }
+
+  const products: SoldProductSummary[] = [...byProduct.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([product, entry]) => ({
+      product,
+      overall: computeStats(entry.prices),
+      sub_products: [...entry.byCode.entries()]
+        .sort(([a], [b]) =>
+          a === null
+            ? b === null
+              ? 0
+              : -1
+            : b === null
+              ? 1
+              : a.localeCompare(b),
+        )
+        .map(([sub_product_code, prices]): SoldSubProductSummary => ({
+          sub_product_code,
+          stats: computeStats(prices),
+        })),
+    }));
+
+  return c.json({ products });
 });
 
 app.get("/sold-records/average", requireLogtoAuth(), async (c) => {

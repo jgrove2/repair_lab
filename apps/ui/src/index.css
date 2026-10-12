@@ -831,96 +831,54 @@ button {
 .sold-status {
   color: #6b7280;
 }
-.sold-table-wrapper {
+.sold-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.sold-card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
-  overflow-x: auto;
   box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.sold-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #ffffff;
-}
-.sold-table th,
-.sold-table td {
-  text-align: left;
-  padding: 12px;
-  border-bottom: 1px solid #f3f4f6;
-}
-.sold-table th {
-  background: #f9fafb;
-  font-size: 12px;
+.sold-card-title {
+  margin: 0;
+  font-size: 1rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #6b7280;
-  border-bottom: 1px solid #e5e7eb;
-  white-space: nowrap;
-}
-.sold-table td {
-  font-size: 14px;
   color: #1f2937;
+  text-transform: capitalize;
 }
-.sold-table th:nth-child(3),
-.sold-table td:nth-child(3) {
-  text-align: right;
+.sold-card-subs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.sold-table tbody tr:last-child td {
-  border-bottom: none;
+.sold-card-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid #f3f4f6;
 }
-@media (min-width: 768px) {
-  .sold-table tbody tr:nth-child(even) {
-    background: #fafafa;
-  }
-  .sold-table tbody tr:hover {
-    background: #f5f3ff;
-  }
+.sold-card-sub-code {
+  flex: 1 1 100%;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
 }
-@media (max-width: 767px) {
-  .sold-table-wrapper {
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    overflow: visible;
-  }
-  .sold-table {
-    display: block;
-    background: transparent;
-  }
-  .sold-table thead {
-    display: none;
-  }
-  .sold-table tbody {
-    display: block;
-  }
-  .sold-table tbody tr {
-    display: block;
-    margin-bottom: 12px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
-    overflow: hidden;
-  }
-  .sold-table th:nth-child(3),
-  .sold-table td:nth-child(3) {
-    text-align: left;
-  }
-  .sold-table td {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 10px 12px;
-    border-bottom: 1px solid #f3f4f6;
-  }
-  .sold-table td::before {
-    content: attr(data-label);
-    font-size: 13px;
-    font-weight: 600;
-    color: #6b7280;
-  }
+.sold-card-overall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
 }

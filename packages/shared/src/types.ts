@@ -162,6 +162,21 @@ export interface SoldPriceStats {
   median: number | null;
 }
 
+// Per-sub-product stats for a sold product, as returned by the sold summary
+// endpoint. `sub_product_code` is null for records entered without a code.
+export interface SoldSubProductSummary {
+  sub_product_code: string | null;
+  stats: SoldPriceStats;
+}
+
+// A sold product rolled up for the summary cards: overall stats plus one entry
+// per distinct sub-product code.
+export interface SoldProductSummary {
+  product: string;
+  overall: SoldPriceStats;
+  sub_products: SoldSubProductSummary[];
+}
+
 // A component joined with its location's display name, as returned by the
 // inventory list endpoint.
 export interface ComponentListItem extends Component {

@@ -1,21 +1,28 @@
 import { useEffect, useState } from "react";
-import type { PaginatedResponse, SoldRecord } from "@repair-lab/shared";
+import type { SoldProductSummary } from "@repair-lab/shared";
 import { useApi } from "../lib/api";
 import AddSoldRecordModal from "../components/AddSoldRecordModal";
 
-function formatMoney(value: number, currency: string): string {
+function formatMoney(value: number | null, currency: string): string {
+  if (value === null) {
+    return "—";
+  }
   return currency === "USD" ? `$${value.toFixed(2)}` : `${value.toFixed(2)} ${currency}`;
 }
 
-// Authenticated sold page: a list of manually-entered sold records plus the
-// "Add sold" dialog. Product suggestions for the dialog are the union of
-// products known to listings and to previously-entered sold records.
+function formatCount(value: number): string {
+  return String(value);
+}
+
+// Authenticated sold page: read-only summary cards (one per product) showing
+// per-sub-product average/median/count plus an overall average. The "Add sold"
+// dialog is the only way to enter data.
 export default function Sold() {
   const { fetch: apiFetch } = useApi();
 
   const [products, setProducts] = useState<string[]>([]);
   const [soldProducts, setSoldProducts] = useState<string[]>([]);
-  const [soldRecords, setSoldRecords] = useState<SoldRecord[]>([]);
+  const [summary, setSummary] = useState<SoldProductSummary[]>([]);
   const [soldReload, setSoldReload] = useState(0);
   const [addSoldOpen, setAddSoldOpen] = useState(false);
 
@@ -60,11 +67,11 @@ export default function Sold() {
 
   useEffect(() => {
     let cancelled = false;
-    apiFetch("/sold-records?page=1&pageSize=100&sort=sold_date&order=desc")
-      .then((res) => res.json() as Promise<PaginatedResponse<SoldRecord>>)
+    apiFetch("/sold-records/summary")
+      .then((res) => res.json() as Promise<{ products: SoldProductSummary[] }>)
       .then((body) => {
         if (!cancelled) {
-          setSoldRecords(body.data);
+          setSummary(body.products ?? []);
         }
       })
       .catch(() => {
@@ -95,46 +102,49 @@ export default function Sold() {
           onSaved={() => setSoldReload((current) => current + 1)}
         />
       )}
-      {soldRecords.length === 0 ? (
+      {summary.length === 0 ? (
         <p className="sold-status">No sold records yet.</p>
       ) : (
-        <div className="sold-table-wrapper">
-          <table className="sold-table">
-            <thead>
-              <tr>
-                <th scope="col">Product</th>
-                <th scope="col">Sub-product</th>
-                <th scope="col">Price</th>
-                <th scope="col">Sold date</th>
-                <th scope="col">Controllers</th>
-                <th scope="col">Games</th>
-                <th scope="col">Cords</th>
-              </tr>
-            </thead>
-            <tbody>
-              {soldRecords.map((record) => (
-                <tr key={record.id}>
-                  <td data-label="Product">{record.product}</td>
-                  <td data-label="Sub-product">
-                    {record.sub_product_code ?? "—"}
-                  </td>
-                  <td data-label="Price">
-                    {formatMoney(record.sold_price, "USD")}
-                  </td>
-                  <td data-label="Sold date">{record.sold_date}</td>
-                  <td data-label="Controllers">
-                    {record.includes_controllers ? "Yes" : "No"}
-                  </td>
-                  <td data-label="Games">
-                    {record.includes_games ? "Yes" : "No"}
-                  </td>
-                  <td data-label="Cords">
-                    {record.includes_cords ? "Yes" : "No"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="sold-cards">
+          {summary.map((product) => (
+            <article className="sold-card" key={product.product}>
+              <h2 className="sold-card-title">{product.product}</h2>
+              <ul className="sold-card-subs">
+                {product.sub_products.map((sub) => (
+                  <li className="sold-card-sub" key={sub.sub_product_code ?? "__none__"}>
+                    <span className="sold-card-sub-code">
+                      {sub.sub_product_code ?? "—"}
+                    </span>
+                    <span className="sold-stat">
+                      Avg{" "}
+                      <strong>
+                        {formatMoney(sub.stats.average, "USD")}
+                      </strong>
+                    </span>
+                    <span className="sold-stat">
+                      Median{" "}
+                      <strong>
+                        {formatMoney(sub.stats.median, "USD")}
+                      </strong>
+                    </span>
+                    <span className="sold-stat">
+                      Count{" "}
+                      <strong>{formatCount(sub.stats.count)}</strong>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <div className="sold-card-overall">
+                <span className="sold-stat">
+                  Avg{" "}
+                  <strong>{formatMoney(product.overall.average, "USD")}</strong>
+                </span>
+                <span className="sold-stat">
+                  Count <strong>{formatCount(product.overall.count)}</strong>
+                </span>
+              </div>
+            </article>
+          ))}
         </div>
       )}
     </section>
