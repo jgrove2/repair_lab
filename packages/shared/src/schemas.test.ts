@@ -14,6 +14,7 @@ import {
   itemUpdateSchema,
   listingInputSchema,
   locationCreateSchema,
+  moneySchema,
   locationSchema,
   locationTypeSchema,
   preferenceCreateSchema,
@@ -336,6 +337,16 @@ describe("soldRecordCreateSchema", () => {
     expect(
       soldRecordCreateSchema.safeParse({ product: "wii", sold_price: -1 }).success,
     ).toBe(false);
+  });
+});
+
+describe("moneySchema", () => {
+  it("passes through a finite number", () => {
+    expect(moneySchema.parse(14.77)).toBe(14.77);
+  });
+
+  it("normalises non-finite numbers to null", () => {
+    expect(moneySchema.parse(Infinity)).toBeNull();
   });
 });
 
