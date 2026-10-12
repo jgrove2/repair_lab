@@ -24,7 +24,8 @@ export default function AddSoldRecordModal({
   const { fetch: apiFetch } = useApi();
   const panelRef = useDismissOnOutsideClick<HTMLDivElement>(true, onClose);
 
-  const [product, setProduct] = useState(products[0] ?? "");
+  const [product, setProduct] = useState("");
+  const [productFocused, setProductFocused] = useState(false);
   const [subCode, setSubCode] = useState("");
   const [price, setPrice] = useState("");
   const [soldDate, setSoldDate] = useState(todayIsoDate());
@@ -69,6 +70,14 @@ export default function AddSoldRecordModal({
         (code) =>
           code.toLowerCase().startsWith(subCode.trim().toLowerCase()) &&
           code !== subCode.trim(),
+      )
+    : [];
+
+  const productSuggestions = productFocused
+    ? products.filter(
+        (name) =>
+          name.toLowerCase().startsWith(product.trim().toLowerCase()) &&
+          name !== product.trim(),
       )
     : [];
 
@@ -124,20 +133,37 @@ export default function AddSoldRecordModal({
         <form className="modal-form" onSubmit={handleSubmit} noValidate>
           <div className="modal-field">
             <label htmlFor="sold-product">Product</label>
-            <select
+            <input
               id="sold-product"
+              type="text"
+              autoComplete="off"
               value={product}
-              onChange={(event) => {
-                setProduct(event.target.value);
-                setSubCode("");
-              }}
-            >
-              {products.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
+              onFocus={() => setProductFocused(true)}
+              onBlur={() => setProductFocused(false)}
+              onChange={(event) => setProduct(event.target.value)}
+            />
+            {productSuggestions.length > 0 && (
+              <ul className="modal-suggestions" role="listbox">
+                {productSuggestions.map((name) => (
+                  <li key={name}>
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected="false"
+                      className="modal-suggestion"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => {
+                        setProduct(name);
+                        setSubCode("");
+                        setProductFocused(false);
+                      }}
+                    >
+                      <span className="modal-suggestion-name">{name}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div className="modal-field">

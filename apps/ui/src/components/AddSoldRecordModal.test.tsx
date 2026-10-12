@@ -48,20 +48,36 @@ beforeEach(() => {
 });
 
 describe("AddSoldRecordModal", () => {
-  it("renders with Save disabled until a price is entered", () => {
+  it("renders with Save disabled until a product and price are entered", () => {
     renderModal();
 
     expect(
       screen.getByRole("dialog", { name: "Add sold record" }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Product")).toHaveValue("wii");
+    expect(screen.getByLabelText("Product")).toHaveValue("");
     expect(screen.getByLabelText("Sold price")).toHaveValue(null);
     expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+  });
+
+  it("suggests existing products while typing", async () => {
+    renderModal();
+
+    fireEvent.focus(screen.getByLabelText("Product"));
+    fireEvent.change(screen.getByLabelText("Product"), {
+      target: { value: "wi" },
+    });
+
+    expect(
+      await screen.findByRole("option", { name: "wii" }),
+    ).toBeInTheDocument();
   });
 
   it("submits a valid record", async () => {
     const { onSaved, onClose } = renderModal();
 
+    fireEvent.change(screen.getByLabelText("Product"), {
+      target: { value: "wii" },
+    });
     fireEvent.change(screen.getByLabelText("Sub-product code"), {
       target: { value: "RVL-001" },
     });
@@ -86,9 +102,27 @@ describe("AddSoldRecordModal", () => {
     expect(body.cords).toBe(true);
   });
 
+  it("submits a brand-new product not in the suggestion list", async () => {
+    const { onSaved } = renderModal();
+
+    fireEvent.change(screen.getByLabelText("Product"), {
+      target: { value: "playstation 2" },
+    });
+    fireEvent.change(screen.getByLabelText("Sold price"), {
+      target: { value: "40" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    expect(submittedBody().product).toBe("playstation 2");
+  });
+
   it("autocompletes the sub-product code from previous codes", async () => {
     renderModal();
 
+    fireEvent.change(screen.getByLabelText("Product"), {
+      target: { value: "wii" },
+    });
     fireEvent.focus(screen.getByLabelText("Sub-product code"));
     fireEvent.change(screen.getByLabelText("Sub-product code"), {
       target: { value: "RVL" },
@@ -103,6 +137,9 @@ describe("AddSoldRecordModal", () => {
   it("rejects a negative price without submitting", async () => {
     renderModal();
 
+    fireEvent.change(screen.getByLabelText("Product"), {
+      target: { value: "wii" },
+    });
     fireEvent.change(screen.getByLabelText("Sold price"), {
       target: { value: "-5" },
     });
@@ -116,24 +153,34 @@ describe("AddSoldRecordModal", () => {
     ).toBe(false);
   });
 
-  it("clears the sub-product code when the product changes", async () => {
+  it("clears the sub-product code when a product suggestion is picked", async () => {
     renderModal();
 
+    fireEvent.change(screen.getByLabelText("Product"), {
+      target: { value: "wii" },
+    });
     fireEvent.change(screen.getByLabelText("Sub-product code"), {
       target: { value: "RVL-001" },
     });
     expect(screen.getByLabelText("Sub-product code")).toHaveValue("RVL-001");
 
+    fireEvent.focus(screen.getByLabelText("Product"));
     fireEvent.change(screen.getByLabelText("Product"), {
-      target: { value: "gamecube" },
+      target: { value: "game" },
     });
+    const option = await screen.findByRole("option", { name: "gamecube" });
+    fireEvent.click(option);
 
+    expect(screen.getByLabelText("Product")).toHaveValue("gamecube");
     expect(screen.getByLabelText("Sub-product code")).toHaveValue("");
   });
 
   it("selects a sub-product code from the suggestions", async () => {
     renderModal();
 
+    fireEvent.change(screen.getByLabelText("Product"), {
+      target: { value: "wii" },
+    });
     fireEvent.focus(screen.getByLabelText("Sub-product code"));
     fireEvent.change(screen.getByLabelText("Sub-product code"), {
       target: { value: "RVL" },
@@ -154,6 +201,9 @@ describe("AddSoldRecordModal", () => {
     });
     renderModal();
 
+    fireEvent.change(screen.getByLabelText("Product"), {
+      target: { value: "wii" },
+    });
     fireEvent.change(screen.getByLabelText("Sold price"), {
       target: { value: "30" },
     });

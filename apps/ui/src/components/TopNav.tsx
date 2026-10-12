@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { to: "/app/inventory", label: "Inventory" },
   { to: "/app/tasks", label: "Tasks" },
   { to: "/app/listings", label: "Research" },
+  { to: "/app/sold", label: "Sold" },
 ];
 
 // Responsive top navigation. On narrow screens the links collapse behind a

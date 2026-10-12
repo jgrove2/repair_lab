@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Listing, SoldRecord } from "@repair-lab/shared";
+import type { Listing } from "@repair-lab/shared";
 
 const mocks = vi.hoisted(() => ({
   fetch: vi.fn(),
@@ -32,22 +32,6 @@ function makeListing(overrides: Partial<Listing> = {}): Listing {
     includes_cords: 1,
     created_at: "2026-01-01",
     updated_at: "2026-01-01",
-    ...overrides,
-  };
-}
-
-function makeSoldRecord(overrides: Partial<SoldRecord> = {}): SoldRecord {
-  return {
-    id: "s1",
-    product: "wii",
-    sub_product_code: "RVL-001",
-    sold_price: 30,
-    sold_date: "2026-10-01",
-    includes_controllers: 1,
-    includes_games: 0,
-    includes_cords: 1,
-    created_at: "2026-10-01",
-    updated_at: "2026-10-01",
     ...overrides,
   };
 }
@@ -261,34 +245,6 @@ describe("Listings", () => {
     expect(screen.getByText("Max")).toBeInTheDocument();
     expect(screen.getByText("Median")).toBeInTheDocument();
     expect(screen.getByText("Count")).toBeInTheDocument();
-  });
-
-  it("renders sold records in the sold table", async () => {
-    mockFetches({
-      soldRecords: {
-        data: [makeSoldRecord()],
-        page: 1,
-        pageSize: 100,
-        total: 1,
-      },
-    });
-
-    render(<Listings />);
-
-    expect(await screen.findByText("RVL-001")).toBeInTheDocument();
-    expect(screen.getByText("$30.00")).toBeInTheDocument();
-    expect(screen.getByText("2026-10-01")).toBeInTheDocument();
-  });
-
-  it("opens the add sold modal", async () => {
-    render(<Listings />);
-    await screen.findByRole("tab", { name: "wii" });
-
-    fireEvent.click(screen.getByRole("button", { name: "Add sold" }));
-
-    expect(
-      await screen.findByRole("dialog", { name: "Add sold record" }),
-    ).toBeInTheDocument();
   });
 
   it("toggles games and cords filters", async () => {
