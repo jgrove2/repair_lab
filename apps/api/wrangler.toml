@@ -2,7 +2,6 @@ name = "repair-lab-api"
 main = "src/index.ts"
 compatibility_date = "2026-09-30"
 
-# ── Production ─────────────────────────────────────────────────
 [[d1_databases]]
 binding = "DB"
 database_name = "repair-lab-db"
@@ -12,27 +11,8 @@ binding = "R2"
 bucket_name = "repair-lab-photos"
 
 [vars]
-ENVIRONMENT = "production"
 # LOGTO_API_RESOURCE is the *audience* the API verifies on incoming tokens. It is
 # a security identifier, not a network destination: it must match the API
 # resource registered in Logto Console and VITE_LOGTO_API_RESOURCE in the UI.
-# Each environment uses its own resource so a dev token is not accepted here.
 LOGTO_ENDPOINT = "https://auth.jgrove.dev"
 LOGTO_API_RESOURCE = "https://repair-lab-api.justinwgrove.workers.dev"
-
-# ── Development / staging ──────────────────────────────────────
-[env.dev]
-name = "repair-lab-api-dev"
-
-[[env.dev.d1_databases]]
-binding = "DB"
-database_name = "repair-lab-db-dev"
-
-[[env.dev.r2_buckets]]
-binding = "R2"
-bucket_name = "repair-lab-photos-dev"
-
-[env.dev.vars]
-ENVIRONMENT = "development"
-LOGTO_ENDPOINT = "https://auth.jgrove.dev"
-LOGTO_API_RESOURCE = "https://repair-lab-api-dev.justinwgrove.workers.dev"

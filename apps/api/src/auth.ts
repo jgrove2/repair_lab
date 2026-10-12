@@ -63,8 +63,6 @@ export function authError(
  *   1. Register an API resource, e.g. `https://api.yourapp.com`.
  *   2. Set `LOGTO_ENDPOINT` (tenant, e.g. `https://your-tenant.logto.app`) and
  *      `LOGTO_API_RESOURCE` (the API identifier from step 1) as Worker vars.
- *      These are per-environment identifiers; production must not reuse the
- *      dev resource, or a dev token would be accepted here.
  *   3. The SPA must request that resource in its `resources` config so
  *      `getAccessToken()` returns a JWT with the expected audience
  *      (see `apps/ui/src/lib/logto.ts`).

@@ -9,16 +9,10 @@ const env = (overrides: Partial<Bindings> = {}): Bindings => ({
 });
 
 describe("GET /health", () => {
-  it("returns ok with the environment name", async () => {
-    const res = await app.request("/health", {}, env({ ENVIRONMENT: "dev" }));
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true, env: "dev" });
-  });
-
-  it("falls back to unknown when ENVIRONMENT is unset", async () => {
+  it("returns ok", async () => {
     const res = await app.request("/health", {}, env());
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true, env: "unknown" });
+    expect(await res.json()).toEqual({ ok: true });
   });
 });
 

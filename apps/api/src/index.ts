@@ -6,9 +6,7 @@ import listings from "./listings.js";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-app.get("/health", (c) =>
-  c.json({ ok: true, env: c.env.ENVIRONMENT ?? "unknown" }),
-);
+app.get("/health", (c) => c.json({ ok: true }));
 
 app.get("/me", requireLogtoAuth(), (c) => c.json({ sub: c.get("auth").sub }));
 
