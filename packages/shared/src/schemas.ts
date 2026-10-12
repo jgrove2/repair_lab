@@ -249,14 +249,14 @@ export const moneySchema = z
 export const listingInputSchema = z.object({
   item_id: z.string().min(1),
   title: z.string().min(1),
-  short_description: z.string().optional(),
+  short_description: z.string().nullish(),
   price: moneySchema.optional(),
-  currency: z.string().optional(),
-  url: z.string().optional(),
-  condition: z.string().optional(),
+  currency: z.string().nullish(),
+  url: z.string().nullish(),
+  condition: z.string().nullish(),
   shipping_cost: moneySchema.optional(),
-  shipping_currency: z.string().optional(),
-  shipping_cost_type: z.string().optional(),
+  shipping_currency: z.string().nullish(),
+  shipping_cost_type: z.string().nullish(),
   total_cost: moneySchema.optional(),
   included: z
     .object({

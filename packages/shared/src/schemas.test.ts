@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  agentIngestSchema,
   candidateCreateSchema,
   candidateSchema,
   candidateStatusSchema,
@@ -11,6 +12,7 @@ import {
   itemSchema,
   itemStatusSchema,
   itemUpdateSchema,
+  listingInputSchema,
   locationCreateSchema,
   locationSchema,
   locationTypeSchema,
@@ -333,6 +335,74 @@ describe("soldRecordCreateSchema", () => {
   it("rejects a negative price", () => {
     expect(
       soldRecordCreateSchema.safeParse({ product: "wii", sold_price: -1 }).success,
+    ).toBe(false);
+  });
+});
+
+describe("listingInputSchema", () => {
+  it("accepts a minimal listing", () => {
+    expect(
+      listingInputSchema.safeParse({ item_id: "item-1", title: "Broken Wii" }).success,
+    ).toBe(true);
+  });
+
+  it("accepts null shipping fields for a listing with no shipping options", () => {
+    expect(
+      listingInputSchema.safeParse({
+        item_id: "item-1",
+        title: "PlayStation 4 console",
+        price: "30.99",
+        currency: "USD",
+        shipping_cost: null,
+        shipping_currency: null,
+        shipping_cost_type: null,
+        total_cost: "30.99",
+        condition: "For parts or not working",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("coerces money strings to numbers and nulls to null", () => {
+    const parsed = listingInputSchema.parse({
+      item_id: "item-1",
+      title: "Broken Wii",
+      price: "14.77",
+      shipping_cost: null,
+      total_cost: "",
+    });
+    expect(parsed.price).toBe(14.77);
+    expect(parsed.shipping_cost).toBeNull();
+    expect(parsed.total_cost).toBeNull();
+  });
+
+  it("rejects a listing missing the required title", () => {
+    expect(listingInputSchema.safeParse({ item_id: "item-1" }).success).toBe(false);
+  });
+});
+
+describe("agentIngestSchema", () => {
+  it("accepts a product keyed payload with null shipping fields", () => {
+    expect(
+      agentIngestSchema.safeParse({
+        "Playstation 4": [
+          {
+            item_id: "item-1",
+            title: "PlayStation 4 console",
+            price: "30.99",
+            currency: "USD",
+            shipping_cost: null,
+            shipping_currency: null,
+            shipping_cost_type: null,
+            total_cost: "30.99",
+          },
+        ],
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects an empty product key", () => {
+    expect(
+      agentIngestSchema.safeParse({ "": [{ item_id: "item-1", title: "x" }] }).success,
     ).toBe(false);
   });
 });
