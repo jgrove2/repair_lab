@@ -382,6 +382,102 @@ describe("POST /listings", () => {
     );
   });
 
+  it("coerces missing optional fields to null and flags to 0", async () => {
+    const { env, run } = makeDbEnv((sql) =>
+      sql.includes("WHERE item_id IN") ? { all: [] } : {},
+    );
+
+    const res = await listings.request(
+      "/listings",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ wii: [{ item_id: "item-1", title: "x" }] }),
+      },
+      env,
+    );
+
+    expect(await res.json()).toEqual({
+      inserted: 1,
+      updated: 0,
+      deleted: 0,
+      total: 1,
+    });
+    const insertParams = run.mock.calls[0] as unknown[];
+    expect(insertParams[3]).toBe("x");
+    expect(insertParams[4]).toBeNull();
+    expect(insertParams[5]).toBeNull();
+    expect(insertParams[12]).toBeNull();
+    expect(insertParams[13]).toBe(0);
+    expect(insertParams[14]).toBe(0);
+    expect(insertParams[15]).toBe(0);
+  });
+
+  it("keeps a stale listing that is still present in the payload", async () => {
+    const { env, prepare } = makeDbEnv(
+      (sql) => {
+        if (sql.includes("SELECT item_id FROM listings WHERE updated_at")) {
+          return { all: [{ item_id: "item-1" }] };
+        }
+        if (sql.includes("SELECT item_id FROM listings WHERE item_id IN")) {
+          return { all: [] };
+        }
+        return {};
+      },
+      1,
+    );
+
+    const res = await listings.request(
+      "/listings",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+      env,
+    );
+
+    expect(await res.json()).toEqual({
+      inserted: 1,
+      updated: 0,
+      deleted: 0,
+      total: 1,
+    });
+    expect(prepare).not.toHaveBeenCalledWith(
+      expect.stringContaining("DELETE FROM listings"),
+    );
+  });
+
+  it("deletes every stale listing when the payload is empty", async () => {
+    const { env, prepare } = makeDbEnv(
+      (sql) =>
+        sql.includes("SELECT item_id FROM listings WHERE updated_at")
+          ? { all: [{ item_id: "stale-1" }, { item_id: "stale-2" }] }
+          : {},
+      2,
+    );
+
+    const res = await listings.request(
+      "/listings",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({}),
+      },
+      env,
+    );
+
+    expect(await res.json()).toEqual({
+      inserted: 0,
+      updated: 0,
+      deleted: 2,
+      total: 0,
+    });
+    expect(prepare).toHaveBeenCalledWith(
+      expect.stringContaining("DELETE FROM listings WHERE item_id IN (?, ?)"),
+    );
+  });
+
   it("rejects malformed JSON", async () => {
     const { env } = makeDbEnv(() => ({}));
 
