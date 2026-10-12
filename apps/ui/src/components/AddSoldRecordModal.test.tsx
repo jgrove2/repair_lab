@@ -115,4 +115,60 @@ describe("AddSoldRecordModal", () => {
       mocks.fetch.mock.calls.some(([path]) => path === "/sold-records"),
     ).toBe(false);
   });
+
+  it("clears the sub-product code when the product changes", async () => {
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Sub-product code"), {
+      target: { value: "RVL-001" },
+    });
+    expect(screen.getByLabelText("Sub-product code")).toHaveValue("RVL-001");
+
+    fireEvent.change(screen.getByLabelText("Product"), {
+      target: { value: "gamecube" },
+    });
+
+    expect(screen.getByLabelText("Sub-product code")).toHaveValue("");
+  });
+
+  it("selects a sub-product code from the suggestions", async () => {
+    renderModal();
+
+    fireEvent.focus(screen.getByLabelText("Sub-product code"));
+    fireEvent.change(screen.getByLabelText("Sub-product code"), {
+      target: { value: "RVL" },
+    });
+
+    const option = await screen.findByRole("option", { name: "RVL-001" });
+    fireEvent.click(option);
+
+    expect(screen.getByLabelText("Sub-product code")).toHaveValue("RVL-001");
+  });
+
+  it("shows an error when saving fails", async () => {
+    mocks.fetch.mockImplementation((path: string, init?: RequestInit) => {
+      if (path === "/sold-records" && init?.method === "POST") {
+        return Promise.reject(new Error("API /sold-records failed: 500"));
+      }
+      return respond({ codes: [] });
+    });
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Sold price"), {
+      target: { value: "30" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(
+      await screen.findByText("Could not save the sold record. Please try again."),
+    ).toBeInTheDocument();
+  });
+
+  it("closes via the cancel button", () => {
+    const { onClose } = renderModal();
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(onClose).toHaveBeenCalled();
+  });
 });

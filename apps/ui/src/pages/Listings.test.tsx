@@ -290,4 +290,90 @@ describe("Listings", () => {
       await screen.findByRole("dialog", { name: "Add sold record" }),
     ).toBeInTheDocument();
   });
+
+  it("toggles games and cords filters", async () => {
+    render(<Listings />);
+    await screen.findByRole("tab", { name: "wii" });
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Games" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Cords" }));
+
+    await waitFor(() =>
+      expect(mocks.fetch).toHaveBeenCalledWith(
+        "/listings?page=1&pageSize=25&sort=title&order=asc&games=1&cords=1",
+      ),
+    );
+  });
+
+  it("renders a listing without a url as plain text", async () => {
+    mockFetches({
+      listings: {
+        data: [makeListing({ url: null })],
+        page: 1,
+        pageSize: 25,
+        total: 1,
+      },
+    });
+
+    render(<Listings />);
+
+    expect(
+      await screen.findByText("Nintendo Wii Console"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Nintendo Wii Console" }),
+    ).toBeNull();
+  });
+
+  it("filters the average by sub-product code and included flags", async () => {
+    render(<Listings />);
+    await screen.findByRole("tab", { name: "wii" });
+
+    await waitFor(() =>
+      expect(mocks.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/sold-records/average?product=wii"),
+      ),
+    );
+
+    fireEvent.change(
+      screen.getByRole("textbox", { name: "Sub-product code" }),
+      { target: { value: "RVL-001" } },
+    );
+    await waitFor(() =>
+      expect(mocks.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("sub_product_code=RVL-001"),
+      ),
+    );
+
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: "Average controllers" }),
+    );
+    fireEvent.click(screen.getByRole("checkbox", { name: "Average games" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Average cords" }));
+
+    await waitFor(() =>
+      expect(mocks.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("controllers=1&games=1&cords=1"),
+      ),
+    );
+  });
+
+  it("changes the average product", async () => {
+    mockFetches({
+      filters: { products: ["wii", "gamecube"], conditions: [] },
+    });
+
+    render(<Listings />);
+    await screen.findByRole("tab", { name: "wii" });
+
+    fireEvent.change(screen.getByLabelText("Product"), {
+      target: { value: "gamecube" },
+    });
+
+    await waitFor(() =>
+      expect(mocks.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/sold-records/average?product=gamecube"),
+      ),
+    );
+  });
 });
