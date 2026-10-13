@@ -548,25 +548,6 @@ button {
   margin: 0 0 12px;
   font-size: 1.5rem;
 }
-.listings-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.listings-tab {
-  padding: 8px 16px;
-  background: #ffffff;
-  color: #374151;
-  border: 1px solid #d1d5db;
-  border-radius: 999px;
-  font-size: 14px;
-}
-.listings-tab.active {
-  background: #6d28d9;
-  color: #ffffff;
-  border-color: #6d28d9;
-}
 .listings-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -777,20 +758,6 @@ button {
   background: #ffffff;
 }
 .sold-filter {
-  font-size: 14px;
-  color: #374151;
-}
-.sold-sub-code {
-  padding: 8px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  width: 200px;
-  max-width: 100%;
-}
-.sold-checkbox {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   font-size: 14px;
   color: #374151;
 }

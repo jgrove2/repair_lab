@@ -30,15 +30,14 @@ function formatStats(value: number | null | undefined): string {
   return value === null || value === undefined ? "—" : `$${value.toFixed(2)}`;
 }
 
-// Authenticated research dashboard: product tabs plus a server-sorted/filtered
-// table of the listings the research agent ingested. Also hosts manual sold
-// records and an average-sold-price widget.
+// Authenticated research dashboard: a product dropdown plus a
+// server-sorted/filtered table of the listings the research agent ingested.
+// Also hosts manual sold records and an average-sold-price widget.
 export default function Listings() {
   const { fetch: apiFetch } = useApi();
 
   const [products, setProducts] = useState<string[]>([]);
   const [conditions, setConditions] = useState<string[]>([]);
-  const [product, setProduct] = useState("all");
 
   const [listings, setListings] = useState<Listing[]>([]);
   const [total, setTotal] = useState(0);
@@ -59,11 +58,6 @@ export default function Listings() {
   const [soldProducts, setSoldProducts] = useState<string[]>([]);
 
   const [avgProduct, setAvgProduct] = useState("");
-  const [avgSubCode, setAvgSubCode] = useState("");
-  const [avgSubCodeQ, setAvgSubCodeQ] = useState("");
-  const [avgControllers, setAvgControllers] = useState(false);
-  const [avgGames, setAvgGames] = useState(false);
-  const [avgCords, setAvgCords] = useState(false);
   const [stats, setStats] = useState<SoldPriceStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
 
@@ -114,13 +108,6 @@ export default function Listings() {
   }, [products, soldProducts]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setAvgSubCodeQ(avgSubCode.trim());
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [avgSubCode]);
-
-  useEffect(() => {
     if (!avgProduct.trim()) {
       setStats(null);
       return;
@@ -131,18 +118,6 @@ export default function Listings() {
 
     const params = new URLSearchParams();
     params.set("product", avgProduct.trim());
-    if (avgSubCodeQ) {
-      params.set("sub_product_code", avgSubCodeQ);
-    }
-    if (avgControllers) {
-      params.set("controllers", "1");
-    }
-    if (avgGames) {
-      params.set("games", "1");
-    }
-    if (avgCords) {
-      params.set("cords", "1");
-    }
 
     apiFetch(`/sold-records/average?${params.toString()}`)
       .then((res) => res.json() as Promise<SoldPriceStats>)
@@ -166,7 +141,7 @@ export default function Listings() {
     return () => {
       cancelled = true;
     };
-  }, [apiFetch, avgProduct, avgSubCodeQ, avgControllers, avgGames, avgCords]);
+  }, [apiFetch, avgProduct]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -186,8 +161,8 @@ export default function Listings() {
     params.set("pageSize", String(PAGE_SIZE));
     params.set("sort", sort);
     params.set("order", order);
-    if (product !== "all") {
-      params.set("product", product);
+    if (avgProduct.trim()) {
+      params.set("product", avgProduct.trim());
     }
     if (q) {
       params.set("q", q);
@@ -228,7 +203,7 @@ export default function Listings() {
     return () => {
       cancelled = true;
     };
-  }, [apiFetch, product, page, sort, order, q, condition, controllers, games, cords]);
+  }, [apiFetch, avgProduct, page, sort, order, q, condition, controllers, games, cords]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -258,7 +233,10 @@ export default function Listings() {
           <select
             id="sold-avg-product"
             value={avgProduct}
-            onChange={(event) => setAvgProduct(event.target.value)}
+            onChange={(event) => {
+              setAvgProduct(event.target.value);
+              setPage(1);
+            }}
           >
             {allProducts.map((name) => (
               <option key={name} value={name}>
@@ -266,41 +244,6 @@ export default function Listings() {
               </option>
             ))}
           </select>
-          <input
-            type="text"
-            className="sold-sub-code"
-            placeholder="Sub-product code…"
-            aria-label="Sub-product code"
-            value={avgSubCode}
-            onChange={(event) => setAvgSubCode(event.target.value)}
-          />
-          <label className="sold-checkbox">
-            <input
-              type="checkbox"
-              aria-label="Average controllers"
-              checked={avgControllers}
-              onChange={(event) => setAvgControllers(event.target.checked)}
-            />
-            Controllers
-          </label>
-          <label className="sold-checkbox">
-            <input
-              type="checkbox"
-              aria-label="Average games"
-              checked={avgGames}
-              onChange={(event) => setAvgGames(event.target.checked)}
-            />
-            Games
-          </label>
-          <label className="sold-checkbox">
-            <input
-              type="checkbox"
-              aria-label="Average cords"
-              checked={avgCords}
-              onChange={(event) => setAvgCords(event.target.checked)}
-            />
-            Cords
-          </label>
         </div>
         <div className="sold-stats" aria-label="Sold price stats">
           {statsLoading ? (
@@ -326,36 +269,6 @@ export default function Listings() {
           )}
         </div>
       </section>
-
-      <div className="listings-tabs" role="tablist" aria-label="Products">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={product === "all"}
-          className={`listings-tab${product === "all" ? " active" : ""}`}
-          onClick={() => {
-            setProduct("all");
-            setPage(1);
-          }}
-        >
-          All
-        </button>
-        {products.map((name) => (
-          <button
-            key={name}
-            type="button"
-            role="tab"
-            aria-selected={product === name}
-            className={`listings-tab${product === name ? " active" : ""}`}
-            onClick={() => {
-              setProduct(name);
-              setPage(1);
-            }}
-          >
-            {name}
-          </button>
-        ))}
-      </div>
 
       <div className="listings-toolbar">
         <input
